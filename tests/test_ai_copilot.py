@@ -28,7 +28,7 @@ from app.services.ai.retrieval_service import RetrievalService
 # 1. Configuration tests
 def test_ai_configuration_defaults():
     """Verify AI Copilot is disabled by default with safe parameters."""
-    settings = Settings()
+    settings = Settings(_env_file=None)
     assert settings.AI_ENABLED is False
     assert settings.AI_PROVIDER == "mock"
     assert settings.AI_MODEL in ("llama-3.3-70b-versatile", "grok-2-latest", "gemini-1.5-flash")

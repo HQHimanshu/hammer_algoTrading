@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Cpu,
   CheckCircle2,
@@ -7,6 +7,9 @@ import {
   Zap,
   Shield,
   Activity,
+  Play,
+  Square,
+  ShieldAlert,
 } from 'lucide-react';
 import {
   api,
@@ -62,19 +65,18 @@ export const AlgoTradingPage: React.FC = () => {
       id: 'iron-condor',
       name: 'Delta Neutral Iron Condor',
       status: 'active',
-      symbol: 'NIFTY & BTC F&O',
+      symbol: 'BTCUSD & ETHUSD Perps',
       description: 'Systematically collects theta decay within defined volatility corridors with dynamic wing adjustment.',
     },
   ];
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setIsLoadingStatus(true);
     setErrorMessage(null);
     try {
       // 1. Fetch real strategies catalog from backend
       const serverStrategies = await api.getStrategies();
       if (serverStrategies && serverStrategies.length > 0) {
-        // Merge with portfolio strategies
         const combined = [...serverStrategies];
         for (const init of initialStrategies.slice(2)) {
           if (!combined.find((s) => s.id === init.id)) {
@@ -96,11 +98,11 @@ export const AlgoTradingPage: React.FC = () => {
     } finally {
       setIsLoadingStatus(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   const handleRunEvaluation = async () => {
     setIsEvaluating(true);
@@ -114,6 +116,55 @@ export const AlgoTradingPage: React.FC = () => {
       setErrorMessage(err.message || 'Strategy evaluation failed.');
     } finally {
       setIsEvaluating(false);
+    }
+  };
+
+  const handleToggleLoop = async () => {
+    try {
+      setIsLoadingStatus(true);
+      if (tradingStatus?.loop_running) {
+        await api.stopTrading();
+        setStatusMessage('Background execution loop stopped cleanly.');
+      } else {
+        await api.startTrading();
+        setStatusMessage('Background execution loop started on configured interval.');
+      }
+      await loadData();
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Failed to toggle execution loop.');
+    } finally {
+      setIsLoadingStatus(false);
+    }
+  };
+
+  const handleToggleGate = async () => {
+    try {
+      setIsLoadingStatus(true);
+      if (tradingStatus?.trading_enabled) {
+        await api.disableTrading();
+        setStatusMessage('Trading safety gate DISABLED (safe paper mode).');
+      } else {
+        await api.enableTrading();
+        setStatusMessage('Trading safety gate ENABLED for Demo execution.');
+      }
+      await loadData();
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Failed to toggle trading gate.');
+    } finally {
+      setIsLoadingStatus(false);
+    }
+  };
+
+  const handleEmergencyStop = async () => {
+    try {
+      setIsLoadingStatus(true);
+      await api.emergencyStop();
+      setStatusMessage('EMERGENCY CIRCUIT BREAKER ACTIVATED: Engine halted and orders blocked.');
+      await loadData();
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Failed to trigger emergency stop.');
+    } finally {
+      setIsLoadingStatus(false);
     }
   };
 
@@ -195,6 +246,107 @@ export const AlgoTradingPage: React.FC = () => {
             {tradingStatus?.emergency_stop_active ? 'HALTED' : 'ARMED & READY'}
           </div>
           <div className="stat-trend positive">Sub-ms Pre-Trade Guard Active</div>
+        </div>
+      </div>
+
+      {/* Operational Engine Controls Bar */}
+      <div
+        className="panel-card"
+        style={{
+          border: '1px solid #27272a',
+          backgroundColor: '#0c0c0e',
+          marginBottom: '24px',
+          padding: '16px 20px',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '16px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            style={{
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              backgroundColor: tradingStatus?.loop_running ? '#10b981' : '#71717a',
+              boxShadow: tradingStatus?.loop_running ? '0 0 8px #10b981' : 'none',
+            }}
+          />
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: '#ffffff' }}>
+              Execution Loop: {tradingStatus?.loop_running ? 'RUNNING' : 'STANDBY'} | Safety Gate: {tradingStatus?.trading_enabled ? 'ENABLED' : 'DISABLED'}
+            </div>
+            <div style={{ fontSize: '12px', color: '#a1a1aa' }}>
+              Target: {tradingStatus?.symbol || 'BTCUSD'} (Delta Exchange Demo) • Loop: {tradingStatus?.loop_interval_seconds || 30}s
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px' }}>
+          <button
+            onClick={handleToggleLoop}
+            disabled={isLoadingStatus}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 14px',
+              borderRadius: '6px',
+              border: tradingStatus?.loop_running ? '1px solid #ef4444' : '1px solid #10b981',
+              backgroundColor: tradingStatus?.loop_running ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+              color: tradingStatus?.loop_running ? '#f87171' : '#34d399',
+              fontWeight: 600,
+              fontSize: '12px',
+              cursor: isLoadingStatus ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {tradingStatus?.loop_running ? <Square size={13} /> : <Play size={13} />}
+            <span>{tradingStatus?.loop_running ? 'Stop Loop' : 'Start Loop'}</span>
+          </button>
+
+          <button
+            onClick={handleToggleGate}
+            disabled={isLoadingStatus}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 14px',
+              borderRadius: '6px',
+              border: '1px solid #3f3f46',
+              backgroundColor: tradingStatus?.trading_enabled ? 'rgba(245, 158, 11, 0.15)' : '#18181b',
+              color: tradingStatus?.trading_enabled ? '#fbbf24' : '#e4e4e7',
+              fontWeight: 600,
+              fontSize: '12px',
+              cursor: isLoadingStatus ? 'not-allowed' : 'pointer',
+            }}
+          >
+            <Shield size={13} />
+            <span>{tradingStatus?.trading_enabled ? 'Disable Orders' : 'Enable Demo Orders'}</span>
+          </button>
+
+          <button
+            onClick={handleEmergencyStop}
+            disabled={isLoadingStatus || tradingStatus?.emergency_stop_active}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 14px',
+              borderRadius: '6px',
+              border: '1px solid #b91c1c',
+              backgroundColor: 'rgba(185, 28, 28, 0.2)',
+              color: '#fca5a5',
+              fontWeight: 600,
+              fontSize: '12px',
+              cursor: isLoadingStatus || tradingStatus?.emergency_stop_active ? 'not-allowed' : 'pointer',
+            }}
+          >
+            <ShieldAlert size={13} />
+            <span>{tradingStatus?.emergency_stop_active ? 'Circuit Halted' : 'Emergency Stop'}</span>
+          </button>
         </div>
       </div>
 

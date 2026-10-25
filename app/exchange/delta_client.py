@@ -55,10 +55,10 @@ class DeltaClient:
         client: Optional[httpx.AsyncClient] = None,
     ):
         clean_url = base_url.rstrip("/")
-        if "testnet" not in clean_url.lower():
+        if "testnet" not in clean_url.lower() and "demo" not in clean_url.lower():
             raise ValueError(
-                f"SAFETY VIOLATION: '{clean_url}' does not appear to be a testnet URL. "
-                "DeltaClient only connects to Delta Exchange Testnet."
+                f"SAFETY VIOLATION: '{clean_url}' does not appear to be a testnet or demo URL. "
+                "DeltaClient only connects to Delta Exchange Testnet or Demo."
             )
         self.base_url = clean_url
         self.api_key = api_key.strip()
@@ -271,6 +271,7 @@ class DeltaClient:
         resolution: str = "1m",
         start: Optional[int] = None,
         end: Optional[int] = None,
+        limit: Optional[int] = None,
     ) -> List[Dict[str, Any]]:
         """Fetch historical OHLC candles.
 
@@ -280,7 +281,20 @@ class DeltaClient:
         """
         now = int(time.time())
         end_time = end or now
-        start_time = start or (end_time - 7200)
+        if start is not None:
+            start_time = start
+        elif limit is not None:
+            res_seconds = 60
+            r_str = str(resolution).lower()
+            if r_str.endswith("m"):
+                res_seconds = int(r_str[:-1]) * 60
+            elif r_str.endswith("h"):
+                res_seconds = int(r_str[:-1]) * 3600
+            elif r_str.endswith("d"):
+                res_seconds = int(r_str[:-1]) * 86400
+            start_time = end_time - (res_seconds * limit)
+        else:
+            start_time = end_time - 7200
 
         # Map resolution to Delta Chart TradingView format (e.g., 1m -> '1', 5m -> '5', 1h -> '60', 1d -> 'D')
         chart_res = str(resolution).lower()
@@ -375,13 +389,19 @@ class DeltaClient:
         - price: required if order_type is limit
         - client_order_id: idempotency identifier
         """
+        ot = order_type.lower()
+        if ot == "limit":
+            ot = "limit_order"
+        elif ot == "market":
+            ot = "market_order"
+
         payload: Dict[str, Any] = {
             "product_id": int(product_id),
             "size": int(size) if float(size).is_integer() else size,
             "side": side.lower(),
-            "order_type": order_type.lower(),
+            "order_type": ot,
         }
-        if order_type.lower() == "limit":
+        if "limit" in ot:
             if price is None:
                 raise ValueError("Limit orders require a valid price.")
             payload["limit_price"] = str(price)

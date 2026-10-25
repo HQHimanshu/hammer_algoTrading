@@ -23,8 +23,8 @@ const SEARCH_ITEMS: SearchItem[] = [
   { id: 'btc', title: 'BTC/USDT Perp', subtitle: 'Bitcoin Perpetual Futures • 100x • $67,420.50', category: 'Markets & Pairs', tab: 'chart', pair: 'BTCUSD', badge: '+2.84%' },
   { id: 'eth', title: 'ETH/USDT Perp', subtitle: 'Ethereum Perpetual Futures • 50x • $3,518.20', category: 'Markets & Pairs', tab: 'chart', pair: 'ETHUSD', badge: '+1.92%' },
   { id: 'sol', title: 'SOL/USDT Perp', subtitle: 'Solana High-Beta Perp • 20x • $181.65', category: 'Markets & Pairs', tab: 'chart', pair: 'SOLUSD', badge: '-1.45%' },
-  { id: 'nifty', title: 'NIFTY 50 F&O Index', subtitle: 'Indian Derivative Index • ₹24,850.10', category: 'Markets & Pairs', tab: 'markets', badge: '+0.72%' },
-  { id: 'banknifty', title: 'BANKNIFTY F&O Index', subtitle: 'Banking Sector Derivatives • ₹51,420.00', category: 'Markets & Pairs', tab: 'markets', badge: '+1.15%' },
+  { id: 'xrp', title: 'XRP/USD Perp', subtitle: 'Ripple Perpetual Contract • 50x • $0.5420', category: 'Markets & Pairs', tab: 'chart', pair: 'XRPUSD', badge: '+1.80%' },
+  { id: 'ada', title: 'ADA/USD Perp', subtitle: 'Cardano Perpetual Contract • 20x • $0.3520', category: 'Markets & Pairs', tab: 'chart', pair: 'ADAUSD', badge: '+2.15%' },
 
   // Trading Desks
   { id: 'desk-chart', title: 'TradingView Terminal', subtitle: 'Full-page multi-timeframe candlestick chart & depth book', category: 'Trading Desks', tab: 'chart', badge: 'PRO' },

@@ -149,10 +149,18 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # Enable CORS for future React / Next.js dashboards
+    # Explicitly configure CORS for local Vite dev and production Firebase Hosting origins
+    allowed_origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://hammer-algotrading.web.app",
+        "https://hammer-algotrading.firebaseapp.com",
+    ]
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=allowed_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -180,12 +188,13 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(market_router)
     app.include_router(websocket_router)
-    app.include_router(trading_router)
-    app.include_router(trading_router, prefix="/api")  # alias so /api/trading and /api/strategy work
+    app.include_router(trading_router, prefix="/api/v1")
+    app.include_router(trading_router, prefix="/api")
     app.include_router(trades_router)
     app.include_router(risk_router)
     app.include_router(analytics_router)
-    app.include_router(ai_router)
+    app.include_router(ai_router, prefix="/api/v1/ai")
+    app.include_router(ai_router, prefix="/api/ai")
 
     return app
 

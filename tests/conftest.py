@@ -25,6 +25,8 @@ def test_settings() -> Settings:
         DELTA_API_SECRET="test_api_secret_67890",
         DELTA_BASE_URL="https://testnet-api.delta.exchange",
         TRADING_ENABLED=False,  # Always safe default
+        AI_ENABLED=False,
+        AI_PROVIDER="mock",
         MAX_POSITION_SIZE=2.0,
         MAX_DAILY_LOSS=100.0,
         MAX_OPEN_POSITIONS=2,

@@ -20,7 +20,9 @@ export function App() {
   const [selectedPair, setSelectedPair] = useState('BTCUSD');
 
   const handleOpenPairChart = (pairSymbol: string = 'BTCUSD') => {
-    setSelectedPair(pairSymbol.replace('/', ''));
+    let clean = pairSymbol.replace('/', '');
+    if (clean.includes('NIFTY') || clean.includes('BANK')) clean = 'BTCUSD';
+    setSelectedPair(clean);
     setActiveTab('chart');
   };
 
@@ -53,7 +55,9 @@ export function App() {
 
   const handleNavigate = (tab: NavigationId, pair?: string) => {
     if (pair) {
-      setSelectedPair(pair.replace('/', ''));
+      let clean = pair.replace('/', '');
+      if (clean.includes('NIFTY') || clean.includes('BANK')) clean = 'BTCUSD';
+      setSelectedPair(clean);
     }
     setActiveTab(tab);
   };

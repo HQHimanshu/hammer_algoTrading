@@ -3,7 +3,7 @@ import { ShieldCheck, Zap, Activity } from 'lucide-react';
 
 export const OptionsPage: React.FC = () => {
   const [expiry, setExpiry] = useState('29MAR26');
-  const [assetFilter, setAssetFilter] = useState<'BTC' | 'ETH' | 'NIFTY'>('BTC');
+  const [assetFilter, setAssetFilter] = useState<'BTC' | 'ETH' | 'SOL'>('BTC');
 
   return (
     <div className="page-container">
@@ -11,19 +11,19 @@ export const OptionsPage: React.FC = () => {
       <div className="page-header-block">
         <div>
           <div className="bw-badge-india mb-3">
-            <span className="bw-flag-dot" role="img" aria-label="India flag">🇮🇳</span>
-            <span>Options Greeks Matrix</span>
+            <span className="bw-flag-dot" role="img" aria-label="Delta logo">⚡</span>
+            <span>Delta Crypto Options Matrix</span>
             <span className="bw-badge-sub">• 0 Fee on OTM Expiry</span>
           </div>
           <h1 className="section-title">Options Contracts &amp; Volatility Surface</h1>
           <p className="section-description">
-            Multi-strike European &amp; American options with real-time Greek sensitivities and delta-neutral hedging.
+            Multi-strike European crypto options with real-time Greek sensitivities and delta-neutral hedging.
           </p>
         </div>
 
         <div className="header-action-group">
           <div className="filter-tab-pills">
-            {(['BTC', 'ETH', 'NIFTY'] as const).map((a) => (
+            {(['BTC', 'ETH', 'SOL'] as const).map((a) => (
               <button
                 key={a}
                 className={`tab-filter-btn ${assetFilter === a ? 'active' : ''}`}

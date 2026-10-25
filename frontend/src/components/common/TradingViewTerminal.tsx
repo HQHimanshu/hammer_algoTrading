@@ -27,19 +27,40 @@ interface TradingViewTerminalProps {
   isModal?: boolean;
 }
 
+export const AVAILABLE_CRYPTO_PAIRS = [
+  { symbol: 'BTCUSD', label: 'BTC/USD Perp', desc: 'Bitcoin Perpetual (100x)', product_id: 84 },
+  { symbol: 'ETHUSD', label: 'ETH/USD Perp', desc: 'Ethereum Perpetual (50x)', product_id: 1699 },
+  { symbol: 'SOLUSD', label: 'SOL/USD Perp', desc: 'Solana Perpetual (20x)', product_id: 92572 },
+  { symbol: 'XRPUSD', label: 'XRP/USD Perp', desc: 'Ripple Perpetual (50x)', product_id: 93723 },
+  { symbol: 'DOGEUSD', label: 'DOGE/USD Perp', desc: 'Dogecoin Perpetual (20x)', product_id: 101555 },
+  { symbol: 'ADAUSD', label: 'ADA/USD Perp', desc: 'Cardano Perpetual (20x)', product_id: 101760 },
+];
+
+export const normalizePair = (rawSymbol?: string): string => {
+  if (!rawSymbol) return 'BTCUSD';
+  const clean = rawSymbol.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+  if (clean.includes('NIFTY') || clean.includes('BANK')) return 'BTCUSD';
+  if (clean === 'BTCUSDT' || clean === 'BTCUSD') return 'BTCUSD';
+  if (clean === 'ETHUSDT' || clean === 'ETHUSD') return 'ETHUSD';
+  if (clean === 'SOLUSDT' || clean === 'SOLUSD') return 'SOLUSD';
+  if (clean === 'XRPUSDT' || clean === 'XRPUSD') return 'XRPUSD';
+  if (clean === 'DOGEUSDT' || clean === 'DOGEUSD') return 'DOGEUSD';
+  if (clean === 'ADAUSDT' || clean === 'ADAUSD') return 'ADAUSD';
+  return clean || 'BTCUSD';
+};
+
 export const TradingViewTerminal: React.FC<TradingViewTerminalProps> = ({
-  initialPair = 'BTCUSDT',
+  initialPair = 'BTCUSD',
   onClose,
   isModal = false,
 }) => {
-  // Normalize symbol: ensure standard testnet contract identifier
-  const cleanPair = useMemo(() => {
-    const raw = initialPair.replace('/', '').toUpperCase();
-    if (raw === 'BTCUSD') return 'BTCUSDT';
-    return raw.includes('BTC') ? (raw.endsWith('T') ? raw : `${raw}T`) : raw;
-  }, [initialPair]);
+  const [pair, setPair] = useState<string>(() => normalizePair(initialPair));
+  const [isPairDropdownOpen, setIsPairDropdownOpen] = useState(false);
 
-  const [pair] = useState(cleanPair);
+  useEffect(() => {
+    const nextPair = normalizePair(initialPair);
+    setPair(nextPair);
+  }, [initialPair]);
   const [activeSubTab, setActiveSubTab] = useState<'traded' | 'mark' | 'funding' | 'depth'>('traded');
   const [timeframe, setTimeframe] = useState('1m');
   const [oneClickTrade, setOneClickTrade] = useState(true);
@@ -60,6 +81,8 @@ export const TradingViewTerminal: React.FC<TradingViewTerminalProps> = ({
   useEffect(() => {
     let isSubscribed = true;
     setIsLoadingCandles(true);
+    setLiveCandles([]);
+    setLiveTicker(null);
 
     const fetchHistorical = async () => {
       try {
@@ -87,8 +110,12 @@ export const TradingViewTerminal: React.FC<TradingViewTerminalProps> = ({
 
     fetchHistorical();
 
+    // Refresh every 4s to keep active contract live even if WS stream is broadcasting BTC
+    const pollInterval = setInterval(fetchHistorical, 4000);
+
     return () => {
       isSubscribed = false;
+      clearInterval(pollInterval);
     };
   }, [pair, timeframe]);
 
@@ -96,10 +123,16 @@ export const TradingViewTerminal: React.FC<TradingViewTerminalProps> = ({
   useEffect(() => {
     const cleanupWs = api.connectMarketWebSocket(
       (data: any) => {
-        // Ticker update frame
+        // Guard: If the WebSocket frame specifies a symbol that doesn't match active pair, ignore
+        const msgSymbol = data.symbol || (data.ticker && data.ticker.symbol);
+        if (msgSymbol && msgSymbol !== pair && msgSymbol !== pair.replace('USD', 'USDT')) {
+          return;
+        }
+
+        // Ticker update frame - only update if matches current pair
         if (data.type === 'ticker_update' || data.mark_price !== undefined) {
           setLiveTicker({
-            symbol: data.symbol || pair,
+            symbol: pair,
             mark_price: data.mark_price,
             spot_price: data.spot_price || data.mark_price,
             best_bid: data.best_bid,
@@ -128,6 +161,11 @@ export const TradingViewTerminal: React.FC<TradingViewTerminalProps> = ({
             }
 
             const last = prev[prev.length - 1];
+            // Reject anomalous cross-symbol price jump
+            if (last.close > 0 && Math.abs(c - last.close) / last.close > 0.35) {
+              return prev;
+            }
+
             // If the incoming update belongs to the current candle interval, update it in place
             if (last.time === tickTs || Math.abs(tickTs - last.time) < 60) {
               const updated = [...prev];
@@ -189,30 +227,35 @@ export const TradingViewTerminal: React.FC<TradingViewTerminalProps> = ({
 
   // Current active price
   const currentPrice = useMemo(() => {
-    if (liveTicker?.mark_price) return liveTicker.mark_price;
-    if (candleData.length > 0) return candleData[candleData.length - 1].close;
-    return 80238.0;
-  }, [liveTicker, candleData]);
+    if (liveTicker && liveTicker.symbol === pair && liveTicker.mark_price) {
+      return liveTicker.mark_price;
+    }
+    if (candleData.length > 0) {
+      return candleData[candleData.length - 1].close;
+    }
+    return 0;
+  }, [liveTicker, candleData, pair]);
 
   // Dynamic Price Scaling based on verified candles
   const { minPrice, maxPrice, priceRange } = useMemo(() => {
     if (candleData.length === 0) {
-      return { minPrice: 79000, maxPrice: 82000, priceRange: 3000 };
+      const base = currentPrice > 0 ? currentPrice : 1000;
+      return { minPrice: base * 0.95, maxPrice: base * 1.05, priceRange: Math.max(base * 0.1, 1.0) };
     }
     let low = Math.min(...candleData.map((c) => c.low));
     let high = Math.max(...candleData.map((c) => c.high));
-    if (currentPrice) {
+    if (currentPrice > 0 && currentPrice >= low * 0.8 && currentPrice <= high * 1.2) {
       low = Math.min(low, currentPrice);
       high = Math.max(high, currentPrice);
     }
     const spread = high - low;
-    const padding = Math.max(spread * 0.12, 40.0);
-    const minP = Math.floor(low - padding);
-    const maxP = Math.ceil(high + padding);
+    const padding = Math.max(spread * 0.12, low * 0.005);
+    const minP = low - padding;
+    const maxP = high + padding;
     return {
       minPrice: minP,
       maxPrice: maxP,
-      priceRange: Math.max(maxP - minP, 1.0),
+      priceRange: Math.max(maxP - minP, 0.0001),
     };
   }, [candleData, currentPrice]);
 
@@ -292,9 +335,53 @@ export const TradingViewTerminal: React.FC<TradingViewTerminalProps> = ({
             <Star size={15} className="text-muted hover:text-white" />
           </button>
 
-          <div className="tv-pair-selector">
-            <span className="tv-pair-title">{pair}</span>
-            <ChevronDown size={14} className="text-muted" />
+          <div className="relative">
+            <button
+              type="button"
+              className="tv-pair-selector bg-white/5 hover:bg-white/10 px-2 py-1 rounded transition border border-white/10 flex items-center gap-1.5 cursor-pointer text-left"
+              onClick={() => setIsPairDropdownOpen(!isPairDropdownOpen)}
+              title="Click to Switch Delta Crypto Contract"
+            >
+              <span className="tv-pair-title">{pair}</span>
+              <span className="text-[9px] uppercase font-mono font-bold text-emerald-400 bg-emerald-950/80 px-1 py-0.5 rounded border border-emerald-500/30">
+                PERP
+              </span>
+              <ChevronDown size={14} className="text-muted" />
+            </button>
+
+            {isPairDropdownOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-[90]"
+                  onClick={() => setIsPairDropdownOpen(false)}
+                />
+                <div className="tv-pair-dropdown-menu">
+                  <div className="px-3 py-1.5 text-[10px] font-mono text-muted uppercase border-b border-[#1a2130] flex items-center justify-between">
+                    <span>Delta Demo Crypto Contracts</span>
+                    <span className="text-emerald-400">Live Feed</span>
+                  </div>
+                  {AVAILABLE_CRYPTO_PAIRS.map((cp) => (
+                    <button
+                      key={cp.symbol}
+                      type="button"
+                      onClick={() => {
+                        setPair(cp.symbol);
+                        setIsPairDropdownOpen(false);
+                      }}
+                      className={`tv-pair-dropdown-item ${pair === cp.symbol ? 'active' : ''}`}
+                    >
+                      <div>
+                        <div className="pair-title">{cp.label}</div>
+                        <div className="pair-desc">{cp.desc}</div>
+                      </div>
+                      <span className="pair-badge">
+                        ID: {cp.product_id}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           <div className="tv-current-price-block">
@@ -542,7 +629,7 @@ export const TradingViewTerminal: React.FC<TradingViewTerminalProps> = ({
                   className="tv-quick-input"
                   title="Order Quantity"
                 />
-                <span className="tv-quick-step">BTC</span>
+                <span className="tv-quick-step">{pair.replace('USD', '').replace('USDT', '') || 'BTC'}</span>
               </div>
               <button className="tv-quick-buy-btn" onClick={() => handleQuickOrder('BUY')}>
                 <span className="tv-q-price font-mono">{liveTicker?.best_ask?.toFixed(1) || (currentPrice + 0.5).toFixed(1)}</span>
@@ -592,120 +679,129 @@ export const TradingViewTerminal: React.FC<TradingViewTerminalProps> = ({
             })}
 
             {/* Candlesticks & Volume Histogram */}
-            {candleData.map((c, i) => {
-              const total = Math.max(candleData.length, 1);
-              const slotW = (svgWidth - paddingRight) / total;
-              const x = i * slotW + slotW / 2;
-              const candleW = Math.max(3, slotW * 0.68);
-
-              const yOpen = getY(c.open);
-              const yClose = getY(c.close);
-              const yHigh = getY(c.high);
-              const yLow = getY(c.low);
-
-              const top = Math.min(yOpen, yClose);
-              const bodyHeight = Math.max(2, Math.abs(yClose - yOpen));
-              const color = c.isUp ? '#10b981' : '#f43f5e';
-
-              // Volume bar at bottom
-              const maxVol = Math.max(...candleData.map((d) => d.volume), 10.0);
-              const volBarH = Math.max(2, (c.volume / maxVol) * volumeHeight);
-              const volY = svgHeight - 20 - volBarH;
+            {(() => {
+              const chartAreaWidth = svgWidth - paddingRight - 15;
+              const effectiveSlots = Math.max(candleData.length, 36);
+              const slotW = Math.max(7, Math.min(18, chartAreaWidth / effectiveSlots));
+              const candleW = Math.max(4, Math.min(11, slotW * 0.72));
+              const totalContentWidth = candleData.length * slotW;
+              const startX = Math.max(16, (svgWidth - paddingRight - 15) - totalContentWidth);
 
               return (
-                <g
-                  key={c.index}
-                  onMouseEnter={() => setHoveredCandleIndex(i)}
-                  onMouseLeave={() => setHoveredCandleIndex(null)}
-                  style={{ cursor: 'crosshair' }}
-                >
-                  {/* Wick */}
-                  <line
-                    x1={x}
-                    y1={yHigh}
-                    x2={x}
-                    y2={yLow}
-                    stroke={color}
-                    strokeWidth="1.2"
-                  />
-                  {/* Candle Body */}
-                  <rect
-                    x={x - candleW / 2}
-                    y={top}
-                    width={candleW}
-                    height={bodyHeight}
-                    fill={color}
-                    rx="1"
-                  />
-                  {/* Volume Bar */}
-                  <rect
-                    x={x - candleW / 2}
-                    y={volY}
-                    width={candleW}
-                    height={volBarH}
-                    fill={color}
-                    opacity="0.32"
-                  />
-                </g>
+                <>
+                  {candleData.map((c, i) => {
+                    const x = startX + i * slotW + slotW / 2;
+                    const yOpen = getY(c.open);
+                    const yClose = getY(c.close);
+                    const yHigh = getY(c.high);
+                    const yLow = getY(c.low);
+
+                    const top = Math.min(yOpen, yClose);
+                    const bodyHeight = Math.max(3, Math.abs(yClose - yOpen));
+                    const color = c.isUp ? '#10b981' : '#f43f5e';
+
+                    // Volume bar at bottom
+                    const maxVol = Math.max(...candleData.map((d) => d.volume), 10.0);
+                    const volBarH = Math.max(2, (c.volume / maxVol) * volumeHeight);
+                    const volY = svgHeight - 20 - volBarH;
+
+                    return (
+                      <g
+                        key={c.index}
+                        onMouseEnter={() => setHoveredCandleIndex(i)}
+                        onMouseLeave={() => setHoveredCandleIndex(null)}
+                        style={{ cursor: 'crosshair' }}
+                      >
+                        {/* Wick */}
+                        <line
+                          x1={x}
+                          y1={Math.min(yHigh, yLow - 2)}
+                          x2={x}
+                          y2={Math.max(yLow, yHigh + 2)}
+                          stroke={color}
+                          strokeWidth="1.3"
+                        />
+                        {/* Candle Body */}
+                        <rect
+                          x={x - candleW / 2}
+                          y={bodyHeight <= 3 ? top - 1 : top}
+                          width={candleW}
+                          height={bodyHeight}
+                          fill={color}
+                          rx="1"
+                        />
+                        {/* Volume Bar */}
+                        <rect
+                          x={x - candleW / 2}
+                          y={volY}
+                          width={candleW}
+                          height={volBarH}
+                          fill={color}
+                          opacity="0.32"
+                        />
+                      </g>
+                    );
+                  })}
+
+                  {/* Current Active Price Line and Right Axis Tag */}
+                  {currentPrice && (
+                    <g pointerEvents="none">
+                      <line
+                        x1="0"
+                        y1={getY(currentPrice)}
+                        x2={svgWidth - paddingRight}
+                        y2={getY(currentPrice)}
+                        stroke="#10b981"
+                        strokeDasharray="3 3"
+                        strokeWidth="1.2"
+                      />
+                      <rect
+                        x={svgWidth - paddingRight + 2}
+                        y={getY(currentPrice) - 10}
+                        width={paddingRight - 4}
+                        height={20}
+                        fill="#10b981"
+                        rx="3"
+                      />
+                      <text
+                        x={svgWidth - paddingRight + 6}
+                        y={getY(currentPrice) + 4}
+                        fill="#000000"
+                        fontSize="9.5"
+                        fontWeight="700"
+                        fontFamily="monospace"
+                      >
+                        {currentPrice.toFixed(1)}
+                      </text>
+                    </g>
+                  )}
+
+                  {/* Hover Crosshair */}
+                  {hoveredCandleIndex !== null && candleData[hoveredCandleIndex] && (
+                    <g pointerEvents="none">
+                      <line
+                        x1={startX + hoveredCandleIndex * slotW + slotW / 2}
+                        y1="0"
+                        x2={startX + hoveredCandleIndex * slotW + slotW / 2}
+                        y2={svgHeight - 20}
+                        stroke="#94a3b8"
+                        strokeDasharray="2 2"
+                        strokeWidth="1"
+                      />
+                      <line
+                        x1="0"
+                        y1={getY(candleData[hoveredCandleIndex].close)}
+                        x2={svgWidth - paddingRight}
+                        y2={getY(candleData[hoveredCandleIndex].close)}
+                        stroke="#94a3b8"
+                        strokeDasharray="2 2"
+                        strokeWidth="1"
+                      />
+                    </g>
+                  )}
+                </>
               );
-            })}
-
-            {/* Current Active Price Line and Right Axis Tag */}
-            {currentPrice && (
-              <g pointerEvents="none">
-                <line
-                  x1="0"
-                  y1={getY(currentPrice)}
-                  x2={svgWidth - paddingRight}
-                  y2={getY(currentPrice)}
-                  stroke="#10b981"
-                  strokeDasharray="3 3"
-                  strokeWidth="1.2"
-                />
-                <rect
-                  x={svgWidth - paddingRight + 2}
-                  y={getY(currentPrice) - 10}
-                  width={paddingRight - 4}
-                  height={20}
-                  fill="#10b981"
-                  rx="3"
-                />
-                <text
-                  x={svgWidth - paddingRight + 6}
-                  y={getY(currentPrice) + 4}
-                  fill="#000000"
-                  fontSize="9.5"
-                  fontWeight="700"
-                  fontFamily="monospace"
-                >
-                  {currentPrice.toFixed(1)}
-                </text>
-              </g>
-            )}
-
-            {/* Hover Crosshair */}
-            {hoveredCandleIndex !== null && candleData[hoveredCandleIndex] && (
-              <g pointerEvents="none">
-                <line
-                  x1={(hoveredCandleIndex / (candleData.length - 1)) * (svgWidth - paddingRight)}
-                  y1="0"
-                  x2={(hoveredCandleIndex / (candleData.length - 1)) * (svgWidth - paddingRight)}
-                  y2={svgHeight - 20}
-                  stroke="#94a3b8"
-                  strokeDasharray="2 2"
-                  strokeWidth="1"
-                />
-                <line
-                  x1="0"
-                  y1={getY(candleData[hoveredCandleIndex].close)}
-                  x2={svgWidth - paddingRight}
-                  y2={getY(candleData[hoveredCandleIndex].close)}
-                  stroke="#94a3b8"
-                  strokeDasharray="2 2"
-                  strokeWidth="1"
-                />
-              </g>
-            )}
+            })()}
           </svg>
 
           {/* Bottom Chart Status Bar */}

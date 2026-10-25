@@ -199,7 +199,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       id: 'iron-condor',
       name: 'Delta Neutral Iron Condor',
       category: 'delta-neutral',
-      pair: 'NIFTY & BTC F&O',
+      pair: 'BTC & ETH Options & Perps',
       apy: '+32.8%',
       winRate: '91.2%',
       sharpe: '2.94',
@@ -492,14 +492,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <span className="bw-ticker-change up">+5.42%</span>
           </div>
           <div className="bw-ticker-item">
-            <span className="bw-ticker-symbol">NIFTY 50</span>
-            <span className="bw-ticker-price">24,852.10</span>
-            <span className="bw-ticker-change up">+0.68%</span>
+            <span className="bw-ticker-symbol">XRP/USD</span>
+            <span className="bw-ticker-price">$0.5420</span>
+            <span className="bw-ticker-change up">+1.80%</span>
           </div>
           <div className="bw-ticker-item">
-            <span className="bw-ticker-symbol">BANKNIFTY</span>
-            <span className="bw-ticker-price">51,320.00</span>
-            <span className="bw-ticker-change up">+0.94%</span>
+            <span className="bw-ticker-symbol">ADA/USD</span>
+            <span className="bw-ticker-price">$0.3520</span>
+            <span className="bw-ticker-change up">+2.15%</span>
           </div>
           <div className="bw-ticker-item">
             <span className="bw-ticker-symbol">DODGE/USDT</span>
@@ -523,9 +523,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <span className="bw-ticker-change up">+3.18%</span>
           </div>
           <div className="bw-ticker-item">
-            <span className="bw-ticker-symbol">NIFTY 50</span>
-            <span className="bw-ticker-price">24,852.10</span>
-            <span className="bw-ticker-change up">+0.68%</span>
+            <span className="bw-ticker-symbol">XRP/USD</span>
+            <span className="bw-ticker-price">$0.5420</span>
+            <span className="bw-ticker-change up">+1.80%</span>
           </div>
         </div>
       </div>
@@ -891,7 +891,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <ul>
               <li><a href="#futures" onClick={(e) => { e.preventDefault(); handleNav('futures'); }}>Bitcoin Futures</a></li>
               <li><a href="#options" onClick={(e) => { e.preventDefault(); handleNav('options'); }}>Ether Options</a></li>
-              <li><a href="#nifty" onClick={(e) => { e.preventDefault(); handleNav('markets'); }}>Nifty 50 Straddles</a></li>
+              <li><a href="#perps" onClick={(e) => { e.preventDefault(); handleNav('futures'); }}>Delta Perpetuals</a></li>
               <li><a href="#spot" onClick={(e) => { e.preventDefault(); handleNav('spot'); }}>Spot Exchange</a></li>
             </ul>
           </div>

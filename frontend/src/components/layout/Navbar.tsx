@@ -73,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
           <div className="bw-brand-text">
             <span className="bw-brand-title">Hammer.</span>
-            <span className="bw-brand-tag">QUANT | INDIA</span>
+            <span className="bw-brand-tag">QUANT | CRYPTO</span>
           </div>
         </div>
 

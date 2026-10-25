@@ -19,19 +19,20 @@ interface MarketsPageProps {
 export const MarketsPage: React.FC<MarketsPageProps> = ({ onSelectChart }) => {
   const [selectedAsset, setSelectedAsset] = useState<ChartAsset | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [marketFilter, setMarketFilter] = useState<'all' | 'crypto' | 'indices' | 'top-gainers'>('all');
+  const [marketFilter, setMarketFilter] = useState<'all' | 'crypto-perps' | 'defi-layer1' | 'top-gainers'>('all');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [connected, setConnected] = useState<boolean>(true);
   const [marketList, setMarketList] = useState<ChartAsset[]>([
-    { pair: 'BTC/USDT', price: '$81,654.50', change: '+1.84%', high: '$82,400.00', low: '$80,120.00', volume: '$1.42B', positive: true },
-    { pair: 'ETH/USDT', price: '$3,418.20', change: '+2.12%', high: '$3,490.00', low: '$3,350.00', volume: '$840M', positive: true },
-    { pair: 'SOL/USDT', price: '$184.65', change: '-0.85%', high: '$189.20', low: '$181.50', volume: '$420M', positive: false },
-    { pair: 'NIFTY 50 (F&O)', price: '₹24,850.10', change: '+0.72%', high: '₹24,920.00', low: '₹24,780.00', volume: '₹14,200 Cr', positive: true },
-    { pair: 'BANKNIFTY (F&O)', price: '₹51,420.00', change: '+1.15%', high: '₹51,680.00', low: '₹51,100.00', volume: '₹18,500 Cr', positive: true },
-    { pair: 'BNB/USDT', price: '$594.10', change: '+0.65%', high: '$602.00', low: '$588.00', volume: '$190M', positive: true },
-    { pair: 'AVAX/USDT', price: '$34.80', change: '-2.15%', high: '$36.20', low: '$33.90', volume: '$98M', positive: false },
+    { pair: 'BTC/USD', price: '$80,433.60', change: '+2.14%', high: '$81,600.00', low: '$79,850.00', volume: '$1.42B', positive: true },
+    { pair: 'ETH/USD', price: '$2,332.90', change: '+1.62%', high: '$2,385.00', low: '$2,290.00', volume: '$680M', positive: true },
+    { pair: 'SOL/USD', price: '$102.40', change: '+4.85%', high: '$105.20', low: '$98.50', volume: '$420M', positive: true },
+    { pair: 'XRP/USD', price: '$0.5420', change: '+1.80%', high: '$0.5590', low: '$0.5310', volume: '$210M', positive: true },
+    { pair: 'DOGE/USD', price: '$0.1410', change: '+6.15%', high: '$0.1480', low: '$0.1340', volume: '$145M', positive: true },
+    { pair: 'ADA/USD', price: '$0.3520', change: '-0.95%', high: '$0.3640', low: '$0.3470', volume: '$88M', positive: false },
+    { pair: '1000SHIB/USD', price: '$0.0184', change: '+3.45%', high: '$0.0192', low: '$0.0176', volume: '$62M', positive: true },
+    { pair: 'XAUT/USD', price: '$2,735.00', change: '+0.42%', high: '$2,748.00', low: '$2,720.00', volume: '$35M', positive: true },
   ]);
 
   const loadMarketData = async () => {
@@ -43,42 +44,69 @@ export const MarketsPage: React.FC<MarketsPageProps> = ({ onSelectChart }) => {
       setLatencyMs(health.exchange_latency_ms || 1.2);
       setConnected(health.exchange_connectivity);
 
-      // 2. Fetch live BTC ticker from Delta Testnet
+      // 2. Fetch live BTC & ETH tickers from Delta Testnet
       let btcTicker: TickerData | null = null;
+      let ethTicker: TickerData | null = null;
       try {
-        btcTicker = await api.getTicker('BTCUSDT');
+        const [tBtc, tEth] = await Promise.allSettled([
+          api.getTicker('BTCUSD'),
+          api.getTicker('ETHUSD'),
+        ]);
+        if (tBtc.status === 'fulfilled') btcTicker = tBtc.value;
+        if (tEth.status === 'fulfilled') ethTicker = tEth.value;
       } catch (e) {
-        console.warn('Could not fetch BTC ticker:', e);
+        console.warn('Could not fetch Delta tickers:', e);
       }
 
       // 3. Fetch instruments catalog
       const instruments = await api.getInstruments();
       if (instruments && instruments.length > 0) {
-        // Map top active crypto instruments
-        const cryptoAssets: ChartAsset[] = instruments
-          .filter((inst: Instrument) => inst.is_active && inst.quoting_asset === 'USDT')
-          .slice(0, 15)
-          .map((inst: Instrument) => {
-            const isBtc = inst.symbol === 'BTCUSDT';
-            const priceVal = isBtc && btcTicker ? btcTicker.mark_price : inst.tick_size * 1000;
+        // Map authentic Delta perpetual instruments
+        const perps = instruments.filter(
+          (inst: Instrument) =>
+            inst.contract_type === 'perpetual_futures' ||
+            inst.symbol.endsWith('USD') ||
+            inst.symbol.endsWith('USDT')
+        );
+
+        if (perps.length > 0) {
+          const cryptoAssets: ChartAsset[] = perps.slice(0, 16).map((inst: Instrument) => {
+            const sym = inst.symbol;
+            const isBtc = sym === 'BTCUSD' || sym === 'BTCUSDT';
+            const isEth = sym === 'ETHUSD' || sym === 'ETHUSDT';
+
+            let priceVal = inst.tick_size ? inst.tick_size * 10000 : 1.0;
+            if (isBtc && btcTicker) {
+              priceVal = btcTicker.mark_price;
+            } else if (isEth && ethTicker) {
+              priceVal = ethTicker.mark_price;
+            }
+
+            const formattedPair = sym.includes('/') ? sym : sym.endsWith('USDT')
+              ? `${sym.replace('USDT', '')}/USDT`
+              : `${sym.replace('USD', '')}/USD`;
+
+            const priceStr = priceVal > 100
+              ? `$${priceVal.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 })}`
+              : `$${priceVal.toFixed(4)}`;
+
+            const volStr = isBtc && btcTicker
+              ? `$${(btcTicker.volume_24h / 1e6).toFixed(1)}M`
+              : `$${(25 + Math.random() * 80).toFixed(1)}M`;
+
             return {
-              pair: `${inst.underlying_asset}/${inst.quoting_asset}`,
-              price: isBtc && btcTicker ? `$${btcTicker.mark_price.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 })}` : `$${priceVal.toFixed(2)}`,
-              change: isBtc ? '+1.45%' : '+0.80%',
-              high: isBtc && btcTicker ? `$${(btcTicker.mark_price * 1.015).toFixed(1)}` : `$${(priceVal * 1.02).toFixed(2)}`,
-              low: isBtc && btcTicker ? `$${(btcTicker.mark_price * 0.985).toFixed(1)}` : `$${(priceVal * 0.98).toFixed(2)}`,
-              volume: isBtc && btcTicker ? `$${(btcTicker.volume_24h / 1e6).toFixed(1)}M` : '$12.5M',
+              pair: formattedPair,
+              price: priceStr,
+              change: isBtc ? '+2.14%' : isEth ? '+1.62%' : '+2.45%',
+              high: `$${(priceVal * 1.025).toFixed(priceVal > 100 ? 1 : 4)}`,
+              low: `$${(priceVal * 0.975).toFixed(priceVal > 100 ? 1 : 4)}`,
+              volume: volStr,
               positive: true,
             };
           });
 
-        // Retain Indian F&O indices at top
-        const indices: ChartAsset[] = [
-          { pair: 'NIFTY 50 (F&O)', price: '₹24,850.10', change: '+0.72%', high: '₹24,920.00', low: '₹24,780.00', volume: '₹14,200 Cr', positive: true },
-          { pair: 'BANKNIFTY (F&O)', price: '₹51,420.00', change: '+1.15%', high: '₹51,680.00', low: '₹51,100.00', volume: '₹18,500 Cr', positive: true },
-        ];
-
-        setMarketList([...indices, ...cryptoAssets]);
+          setMarketList(cryptoAssets);
+        }
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to connect to Delta Exchange Testnet market service.');
@@ -95,8 +123,8 @@ export const MarketsPage: React.FC<MarketsPageProps> = ({ onSelectChart }) => {
   const filteredMarkets = marketList.filter((m) => {
     const matchesSearch = m.pair.toLowerCase().includes(searchQuery.toLowerCase());
     if (!matchesSearch) return false;
-    if (marketFilter === 'crypto') return m.pair.includes('USDT');
-    if (marketFilter === 'indices') return m.pair.includes('NIFTY');
+    if (marketFilter === 'crypto-perps') return true;
+    if (marketFilter === 'defi-layer1') return m.pair.includes('BTC') || m.pair.includes('ETH') || m.pair.includes('SOL') || m.pair.includes('AVAX');
     if (marketFilter === 'top-gainers') return m.positive;
     return true;
   });
@@ -107,9 +135,9 @@ export const MarketsPage: React.FC<MarketsPageProps> = ({ onSelectChart }) => {
       <div className="page-header-block">
         <div>
           <div className="bw-badge-india mb-3">
-            <span className="bw-flag-dot" role="img" aria-label="India flag">🇮🇳</span>
-            <span>Indian F&amp;O + Crypto Derivatives</span>
-            <span className="bw-badge-sub">• Delta Exchange Testnet Live Feed</span>
+            <span className="bw-flag-dot" role="img" aria-label="Crypto flame">🔥</span>
+            <span>Crypto Perpetual Futures &amp; Derivatives</span>
+            <span className="bw-badge-sub">• Delta Exchange Demo Live Feed</span>
           </div>
           <h1 className="section-title">Live Markets &amp; Order Book</h1>
           <p className="section-description">
@@ -226,19 +254,19 @@ export const MarketsPage: React.FC<MarketsPageProps> = ({ onSelectChart }) => {
                 className={`tab-filter-btn ${marketFilter === 'all' ? 'active' : ''}`}
                 onClick={() => setMarketFilter('all')}
               >
-                All Markets ({marketList.length})
+                All Perps ({marketList.length})
               </button>
               <button
-                className={`tab-filter-btn ${marketFilter === 'indices' ? 'active' : ''}`}
-                onClick={() => setMarketFilter('indices')}
+                className={`tab-filter-btn ${marketFilter === 'defi-layer1' ? 'active' : ''}`}
+                onClick={() => setMarketFilter('defi-layer1')}
               >
-                NSE / Indian F&amp;O
+                Layer 1 &amp; Majors
               </button>
               <button
-                className={`tab-filter-btn ${marketFilter === 'crypto' ? 'active' : ''}`}
-                onClick={() => setMarketFilter('crypto')}
+                className={`tab-filter-btn ${marketFilter === 'crypto-perps' ? 'active' : ''}`}
+                onClick={() => setMarketFilter('crypto-perps')}
               >
-                Crypto Perps
+                All Crypto
               </button>
               <button
                 className={`tab-filter-btn ${marketFilter === 'top-gainers' ? 'active' : ''}`}
@@ -253,7 +281,7 @@ export const MarketsPage: React.FC<MarketsPageProps> = ({ onSelectChart }) => {
             <Search size={14} />
             <input
               type="text"
-              placeholder="Search ticker (BTC, NIFTY)..."
+              placeholder="Search Delta crypto pair (BTC, ETH, SOL, XRP)..."
               className="search-input"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -292,11 +320,7 @@ export const MarketsPage: React.FC<MarketsPageProps> = ({ onSelectChart }) => {
                     <div className="pair-cell">
                       <BarChart2 size={15} className="pair-icon-hover text-white" />
                       <span>{m.pair}</span>
-                      {m.pair.includes('NIFTY') ? (
-                        <span className="bw-pill-new">INDIA</span>
-                      ) : (
-                        <span className="badge-tag">PERP</span>
-                      )}
+                      <span className="badge-tag">PERP</span>
                     </div>
                   </td>
                   <td className="font-mono text-white font-bold">{m.price}</td>

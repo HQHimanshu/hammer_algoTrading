@@ -2,6 +2,7 @@
 
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query, Request
+from app.config import get_settings
 from app.database import Database
 from app.schemas.trading import (
     OrderResult,
@@ -16,7 +17,7 @@ from app.schemas.trading import (
 from app.services.execution_service import ExecutionService
 from app.services.trading_engine import TradingEngine
 
-router = APIRouter(prefix="/api/v1", tags=["Trading & Strategy"])
+router = APIRouter(tags=["Trading & Strategy"])
 
 
 # Strategy Endpoints
@@ -132,7 +133,7 @@ async def emergency_stop(request: Request) -> TradingControlResponse:
 @router.post("/trading/enable")
 async def enable_trading(request: Request) -> Dict[str, Any]:
     """Explicitly enable automated demo trading in runtime."""
-    settings = request.app.state.settings
+    settings = getattr(request.app.state, "settings", None) or get_settings()
     settings.TRADING_ENABLED = True
     return {
         "status": "enabled",
@@ -144,10 +145,10 @@ async def enable_trading(request: Request) -> Dict[str, Any]:
 @router.post("/trading/disable")
 async def disable_trading(request: Request) -> Dict[str, Any]:
     """Disable automated trading execution."""
-    settings = request.app.state.settings
+    settings = getattr(request.app.state, "settings", None) or get_settings()
     settings.TRADING_ENABLED = False
-    engine: TradingEngine = request.app.state.trading_engine
-    if engine.is_running:
+    engine: Optional[TradingEngine] = getattr(request.app.state, "trading_engine", None)
+    if engine and engine.is_running:
         await engine.stop_loop()
     return {
         "status": "disabled",
@@ -162,9 +163,9 @@ async def get_trading_history(
     limit: int = Query(default=50, ge=1, le=100),
 ) -> Dict[str, Any]:
     """Return consolidated trading history (orders, trades, risk events)."""
-    database: Database = request.app.state.database
-    orders = await database.get_recent_orders(limit=limit)
-    trades = await database.get_recent_trades(limit=limit)
+    database: Optional[Database] = getattr(request.app.state, "database", None)
+    orders = await database.get_recent_orders(limit=limit) if database else []
+    trades = await database.get_recent_trades(limit=limit) if database else []
     return {
         "orders": orders,
         "trades": trades,
@@ -186,6 +187,24 @@ async def get_positions(request: Request) -> List[Position]:
     """Return reconciled margined positions from Delta Exchange Testnet."""
     execution: ExecutionService = request.app.state.execution_service
     return await execution.get_positions()
+
+
+@router.get("/trading/balances")
+@router.get("/trading/wallet")
+async def get_wallet_balances(request: Request) -> Dict[str, Any]:
+    """Fetch real-time authenticated wallet balances from Delta Exchange Testnet."""
+    delta_client = getattr(request.app.state, "delta_client", None)
+    if not delta_client:
+        raise HTTPException(status_code=503, detail="Delta client not initialized")
+    try:
+        raw_balances = await delta_client.get_balances()
+        return {
+            "success": True,
+            "environment": "delta_demo",
+            "balances": raw_balances,
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Failed to fetch exchange balances: {str(exc)}")
 
 
 @router.get("/trading/orders")

@@ -281,7 +281,7 @@ export const TradeMindCopilotModal: React.FC<TradeMindCopilotModalProps> = ({
             >
               <div
                 style={{
-                  maxWidth: '85%',
+                  maxWidth: '88%',
                   padding: '12px 16px',
                   borderRadius:
                     msg.sender === 'user'
@@ -293,9 +293,11 @@ export const TradeMindCopilotModal: React.FC<TradeMindCopilotModalProps> = ({
                   fontSize: '13px',
                   lineHeight: '1.5',
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.25)',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'anywhere',
                 }}
               >
-                <div style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</div>
+                <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{msg.text}</div>
 
                 {/* Sources & Citations */}
                 {msg.sources && msg.sources.length > 0 && (

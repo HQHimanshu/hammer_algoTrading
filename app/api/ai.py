@@ -7,7 +7,7 @@ from app.config import Settings
 from app.schemas.ai import AIHealthResponse, CopilotChatRequest, CopilotChatResponse
 from app.services.ai.copilot_service import TradeMindCopilot
 
-router = APIRouter(prefix="/api/v1/ai", tags=["TradeMind AI Copilot"])
+router = APIRouter(tags=["TradeMind AI Copilot"])
 
 
 @router.get("/health", response_model=AIHealthResponse)

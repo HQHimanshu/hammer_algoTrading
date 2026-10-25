@@ -385,6 +385,10 @@ class ApiClient {
     return this.request<any>(`/api/trading/history?limit=${limit}`);
   }
 
+  async getWalletBalances(): Promise<{ success: boolean; environment: string; balances: any[] }> {
+    return this.request<{ success: boolean; environment: string; balances: any[] }>('/api/v1/trading/balances');
+  }
+
   // History & Audit Records
   async getPositions(): Promise<any[]> {
     return this.request<any[]>('/api/v1/trading/positions');
