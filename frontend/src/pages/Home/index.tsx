@@ -3,7 +3,7 @@ import {
   Zap,
   Shield,
   Bot,
-  Terminal,
+  TrendingUp,
   Smartphone,
   Layers,
   ArrowRight,
@@ -28,11 +28,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileModalOpen, setIsMobileModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [hoveredCoin, setHoveredCoin] = useState<string | null>(null);
   const [terminalStatus, setTerminalStatus] = useState<'running' | 'paused' | 'stopped'>('running');
 
@@ -143,9 +138,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       symbolText: '🐸',
     },
   ];
-=======
->>>>>>> b93865a034d183031f3b6bf769fd26af24171f30
->>>>>>> 3ffa3b7ddf380dc4bd8b6d38b02b350734bb8a2f
 
   // Navigate handler helper
   const handleNav = (tab: NavigationId) => {
@@ -244,129 +236,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
   return (
     <div className="entrance-page-root">
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-      {/* ================= TOP NAVIGATION (Delta Exchange Style) ================= */}
-      <header className="bw-navbar">
-        <div className="bw-nav-left">
-          <div className="bw-brand-link" onClick={() => handleNav('home')}>
-            <img src="/hammer_logo.png" alt="Hammer Logo" className="bw-header-logo-img" />
-            <span className="bw-brand-tag-pill">QUANT | INDIA</span>
-          </div>
-
-          <nav className="bw-nav-links">
-            <button
-              className="bw-nav-item"
-              type="button"
-              onClick={() => handleNav('markets')}
-            >
-              Markets
-            </button>
-            <button
-              className="bw-nav-item"
-              type="button"
-              onClick={() => handleNav('futures')}
-            >
-              Futures
-            </button>
-            <button
-              className="bw-nav-item"
-              type="button"
-              onClick={() => handleNav('options')}
-            >
-              Options
-            </button>
-            <button
-              className="bw-nav-item"
-              type="button"
-              onClick={() => handleNav('algo-trading')}
-            >
-              <span className="bw-pill-new">NEW</span>
-              AlgoHub
-              <ChevronDown size={13} />
-            </button>
-            <button
-              className="bw-nav-item"
-              type="button"
-              onClick={() => handleNav('portfolio')}
-            >
-              Portfolio
-            </button>
-            <button
-              className="bw-nav-item"
-              type="button"
-              onClick={() => handleNav('risk-monitor')}
-            >
-              Risk Guard
-            </button>
-          </nav>
-        </div>
-
-        <div className="bw-nav-right">
-          <div
-            className="bw-search-box"
-            onClick={() => handleNav('algo-trading')}
-            title="Search algorithms, pairs, instruments"
-          >
-            <Search size={14} />
-            <span>Search</span>
-            <span className="bw-kbd">/</span>
-          </div>
-
-          <button
-            className="bw-btn-login"
-            type="button"
-            onClick={() => {
-              setAuthMode('login');
-              setIsAuthModalOpen(true);
-            }}
-          >
-            Log In
-          </button>
-
-          <button
-            className="bw-btn-signup"
-            type="button"
-            onClick={() => {
-              setAuthMode('signup');
-              setIsAuthModalOpen(true);
-            }}
-          >
-            Sign Up
-          </button>
-
-          <button
-            className="bw-icon-action"
-            type="button"
-            onClick={() => setIsMobileModalOpen(true)}
-            title="Mobile Trading App"
-          >
-            <Smartphone size={16} />
-          </button>
-
-          <button
-            className="bw-icon-action"
-            type="button"
-            title="Monochrome High-Contrast Theme Active"
-          >
-            <Sun size={16} />
-          </button>
-
-          <button
-            className="bw-icon-action"
-            type="button"
-            onClick={() => handleNav('algo-trading')}
-            title="Launch Trading Desk"
-          >
-            <Grid size={16} />
-          </button>
-        </div>
-      </header>
-
-=======
->>>>>>> b93865a034d183031f3b6bf769fd26af24171f30
->>>>>>> 3ffa3b7ddf380dc4bd8b6d38b02b350734bb8a2f
       {/* ================= HERO SECTION (Exact Reference Layout in B&W) ================= */}
       <section className="bw-hero-wrapper">
         <div className="bw-hero-backdrop-glow"></div>

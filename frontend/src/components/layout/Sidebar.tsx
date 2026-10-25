@@ -10,7 +10,6 @@ import {
   ShieldCheck,
   History,
   Activity,
-  Terminal,
   BarChart2,
 } from 'lucide-react';
 import { MAIN_NAVIGATION } from '../../navigation/navConfig';
