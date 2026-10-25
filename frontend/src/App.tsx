@@ -12,17 +12,26 @@ import {
   RiskMonitorPage,
   TradeHistoryPage,
 } from './pages';
+import { TradingViewTerminal } from './components/common/TradingViewTerminal';
 import './index.css';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<NavigationId>('home');
+  const [selectedPair, setSelectedPair] = useState('BTCUSD');
+
+  const handleOpenPairChart = (pairSymbol: string = 'BTCUSD') => {
+    setSelectedPair(pairSymbol.replace('/', ''));
+    setActiveTab('chart');
+  };
 
   const renderActivePage = () => {
     switch (activeTab) {
       case 'home':
         return <HomePage onNavigate={setActiveTab} />;
+      case 'chart':
+        return <TradingViewTerminal initialPair={selectedPair} isModal={false} />;
       case 'markets':
-        return <MarketsPage />;
+        return <MarketsPage onSelectChart={handleOpenPairChart} />;
       case 'futures':
         return <FuturesPage />;
       case 'options':
@@ -42,8 +51,15 @@ export function App() {
     }
   };
 
+  const handleNavigate = (tab: NavigationId, pair?: string) => {
+    if (pair) {
+      setSelectedPair(pair.replace('/', ''));
+    }
+    setActiveTab(tab);
+  };
+
   return (
-    <MainLayout activeTab={activeTab} onSelectTab={setActiveTab}>
+    <MainLayout activeTab={activeTab} onSelectTab={handleNavigate}>
       {renderActivePage()}
     </MainLayout>
   );

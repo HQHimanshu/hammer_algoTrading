@@ -1,26 +1,18 @@
 import React, { useState } from 'react';
 import {
-  TrendingUp,
   Zap,
   Shield,
   Bot,
   Terminal,
-  Search,
   Smartphone,
-  Sun,
-  Grid,
-  ChevronRight,
-  ChevronDown,
   Layers,
   ArrowRight,
   Code,
-  Lock,
   Cpu,
   BarChart2,
   CheckCircle2,
   X,
   Play,
-  Share2,
 } from 'lucide-react';
 import type { NavigationId } from '../../types/navigation';
 
@@ -36,8 +28,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileModalOpen, setIsMobileModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   // Navigate handler helper
   const handleNav = (tab: NavigationId) => {
@@ -136,128 +126,6 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
   return (
     <div className="entrance-page-root">
-      {/* ================= TOP NAVIGATION (Delta Exchange Style) ================= */}
-      <header className="bw-navbar">
-        <div className="bw-nav-left">
-          <div className="bw-brand-link" onClick={() => handleNav('home')}>
-            <div className="bw-logo-icon">
-              <Terminal size={18} strokeWidth={2.5} />
-            </div>
-            <div className="bw-brand-text">
-              <span className="bw-brand-title">Hammer.</span>
-              <span className="bw-brand-tag">QUANT | INDIA</span>
-            </div>
-          </div>
-
-          <nav className="bw-nav-links">
-            <button
-              className="bw-nav-item"
-              type="button"
-              onClick={() => handleNav('markets')}
-            >
-              Markets
-            </button>
-            <button
-              className="bw-nav-item"
-              type="button"
-              onClick={() => handleNav('futures')}
-            >
-              Futures
-            </button>
-            <button
-              className="bw-nav-item"
-              type="button"
-              onClick={() => handleNav('options')}
-            >
-              Options
-            </button>
-            <button
-              className="bw-nav-item"
-              type="button"
-              onClick={() => handleNav('algo-trading')}
-            >
-              <span className="bw-pill-new">NEW</span>
-              AlgoHub
-              <ChevronDown size={13} />
-            </button>
-            <button
-              className="bw-nav-item"
-              type="button"
-              onClick={() => handleNav('portfolio')}
-            >
-              Portfolio
-            </button>
-            <button
-              className="bw-nav-item"
-              type="button"
-              onClick={() => handleNav('risk-monitor')}
-            >
-              Risk Guard
-            </button>
-          </nav>
-        </div>
-
-        <div className="bw-nav-right">
-          <div
-            className="bw-search-box"
-            onClick={() => handleNav('algo-trading')}
-            title="Search algorithms, pairs, instruments"
-          >
-            <Search size={14} />
-            <span>Search</span>
-            <span className="bw-kbd">/</span>
-          </div>
-
-          <button
-            className="bw-btn-login"
-            type="button"
-            onClick={() => {
-              setAuthMode('login');
-              setIsAuthModalOpen(true);
-            }}
-          >
-            Log In
-          </button>
-
-          <button
-            className="bw-btn-signup"
-            type="button"
-            onClick={() => {
-              setAuthMode('signup');
-              setIsAuthModalOpen(true);
-            }}
-          >
-            Sign Up
-          </button>
-
-          <button
-            className="bw-icon-action"
-            type="button"
-            onClick={() => setIsMobileModalOpen(true)}
-            title="Mobile Trading App"
-          >
-            <Smartphone size={16} />
-          </button>
-
-          <button
-            className="bw-icon-action"
-            type="button"
-            title="Monochrome High-Contrast Theme Active"
-          >
-            <Sun size={16} />
-          </button>
-
-          <button
-            className="bw-icon-action"
-            type="button"
-            onClick={() => handleNav('algo-trading')}
-            title="Launch Trading Desk"
-          >
-            <Grid size={16} />
-          </button>
-        </div>
-      </header>
-
       {/* ================= HERO SECTION (Exact Reference Layout in B&W) ================= */}
       <section className="bw-hero-wrapper">
         <div className="bw-hero-backdrop-glow"></div>
