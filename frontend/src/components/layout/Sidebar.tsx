@@ -11,6 +11,7 @@ import {
   History,
   Activity,
   Terminal,
+  BarChart2,
 } from 'lucide-react';
 import { MAIN_NAVIGATION } from '../../navigation/navConfig';
 import type { NavigationId } from '../../types/navigation';
@@ -30,6 +31,7 @@ const iconMap = {
   Wallet,
   ShieldCheck,
   History,
+  BarChart2,
 };
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab }) => {

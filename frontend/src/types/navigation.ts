@@ -1,5 +1,6 @@
 export type NavigationId =
   | 'home'
+  | 'chart'
   | 'markets'
   | 'futures'
   | 'options'
@@ -24,5 +25,6 @@ export interface NavItemConfig {
     | 'Bot'
     | 'Wallet'
     | 'ShieldCheck'
-    | 'History';
+    | 'History'
+    | 'BarChart2';
 }

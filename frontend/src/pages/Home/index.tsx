@@ -1,26 +1,18 @@
 import React, { useState } from 'react';
 import {
-  TrendingUp,
   Zap,
   Shield,
   Bot,
   Terminal,
-  Search,
   Smartphone,
-  Sun,
-  Grid,
-  ChevronRight,
-  ChevronDown,
   Layers,
   ArrowRight,
   Code,
-  Lock,
   Cpu,
   BarChart2,
   CheckCircle2,
   X,
   Play,
-  Share2,
 } from 'lucide-react';
 import type { NavigationId } from '../../types/navigation';
 
@@ -36,6 +28,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileModalOpen, setIsMobileModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
+<<<<<<< HEAD
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [hoveredCoin, setHoveredCoin] = useState<string | null>(null);
@@ -148,6 +141,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       symbolText: '🐸',
     },
   ];
+=======
+>>>>>>> b93865a034d183031f3b6bf769fd26af24171f30
 
   // Navigate handler helper
   const handleNav = (tab: NavigationId) => {
@@ -246,6 +241,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
 
   return (
     <div className="entrance-page-root">
+<<<<<<< HEAD
       {/* ================= TOP NAVIGATION (Delta Exchange Style) ================= */}
       <header className="bw-navbar">
         <div className="bw-nav-left">
@@ -363,6 +359,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         </div>
       </header>
 
+=======
+>>>>>>> b93865a034d183031f3b6bf769fd26af24171f30
       {/* ================= HERO SECTION (Exact Reference Layout in B&W) ================= */}
       <section className="bw-hero-wrapper">
         <div className="bw-hero-backdrop-glow"></div>

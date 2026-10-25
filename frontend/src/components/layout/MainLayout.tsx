@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './Navbar';
 import type { NavigationId } from '../../types/navigation';
-import { MAIN_NAVIGATION } from '../../navigation/navConfig';
 import { ChartModal, type ChartAsset } from '../common/ChartModal';
+import { SearchCommandModal } from '../common/SearchCommandModal';
+import { AuthModal } from '../common/AuthModal';
+import { MobileAppModal } from '../common/MobileAppModal';
 
 interface MainLayoutProps {
   activeTab: NavigationId;
-  onSelectTab: (tab: NavigationId) => void;
+  onSelectTab: (tab: NavigationId, pair?: string) => void;
   children: React.ReactNode;
 }
 
@@ -26,47 +28,89 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   children,
 }) => {
   const [globalChartAsset, setGlobalChartAsset] = useState<ChartAsset | null>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
 
-  if (activeTab === 'home') {
-    return (
-      <div className="entrance-full-layout">
-        {children}
-        {/* Global Chart Modal */}
-        <ChartModal
-          asset={globalChartAsset}
-          isOpen={!!globalChartAsset}
-          onClose={() => setGlobalChartAsset(null)}
-        />
-      </div>
-    );
-  }
+  // Global keyboard shortcut '/' or 'Ctrl+K' / 'Cmd+K' to open search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeTag = document.activeElement?.tagName;
+      if (activeTag === 'INPUT' || activeTag === 'TEXTAREA') return;
 
-  const currentNav = MAIN_NAVIGATION.find((n) => n.id === activeTab) || MAIN_NAVIGATION[0];
+      if (e.key === '/' || ((e.ctrlKey || e.metaKey) && e.key === 'k')) {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const handleOpenAuth = (mode: 'login' | 'signup') => {
+    setAuthMode(mode);
+    setIsAuthOpen(true);
+  };
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    document.documentElement.setAttribute('data-theme', nextTheme);
+  };
+
+  const handleAuthSuccess = (email: string) => {
+    setCurrentUser(email);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+  };
+
+  const navbarElement = (
+    <Navbar
+      activeTab={activeTab}
+      onSelectTab={onSelectTab}
+      onOpenSearch={() => setIsSearchOpen(true)}
+      onOpenAuth={handleOpenAuth}
+      onOpenMobile={() => setIsMobileOpen(true)}
+      onToggleTheme={toggleTheme}
+      theme={theme}
+      currentUser={currentUser}
+      onLogout={handleLogout}
+    />
+  );
 
   return (
-    <div className="app-container-horizontal">
-      <Navbar
-        activeTab={activeTab}
-        onSelectTab={onSelectTab}
-        onOpenChart={() => setGlobalChartAsset(defaultBtcAsset)}
-      />
-      
-      {/* Sub-header Bar for Active Route Context */}
-      <div className="sub-navbar">
-        <div className="sub-navbar-content">
-          <div className="breadcrumb-group">
-            <span className="breadcrumb-root">Hammer Trading</span>
-            <span className="breadcrumb-sep">/</span>
-            <span className="breadcrumb-current">{currentNav.label}</span>
-            <span className="breadcrumb-desc">— {currentNav.subtitle}</span>
-          </div>
-          {currentNav.badge && (
-            <span className="pill pill-green font-mono">{currentNav.badge} Engine Active</span>
-          )}
-        </div>
-      </div>
+    <div className={`app-container-horizontal ${theme === 'light' ? 'theme-light' : ''}`}>
+      {navbarElement}
 
-      <main className="content-body-horizontal">{children}</main>
+      <main className={activeTab === 'chart' ? 'content-body-fullscreen-chart' : 'content-body-horizontal'}>
+        {children}
+      </main>
+
+      {/* Global Command Palette / Search Modal */}
+      <SearchCommandModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onNavigate={(tab, pair) => onSelectTab(tab, pair)}
+      />
+
+      {/* Global Auth Modal */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        initialMode={authMode}
+        onClose={() => setIsAuthOpen(false)}
+        onSuccess={handleAuthSuccess}
+      />
+
+      {/* Global Mobile QR App Modal */}
+      <MobileAppModal
+        isOpen={isMobileOpen}
+        onClose={() => setIsMobileOpen(false)}
+      />
 
       {/* Global Chart Modal */}
       <ChartModal

@@ -8,6 +8,13 @@ export const MAIN_NAVIGATION: NavItemConfig[] = [
     iconName: 'Home',
   },
   {
+    id: 'chart',
+    label: 'Chart',
+    subtitle: 'Delta Trading Terminal',
+    badge: 'LIVE',
+    iconName: 'CandlestickChart',
+  },
+  {
     id: 'markets',
     label: 'Markets',
     subtitle: 'Live market prices',
@@ -33,10 +40,9 @@ export const MAIN_NAVIGATION: NavItemConfig[] = [
   },
   {
     id: 'algo-trading',
-    label: 'Algo Trading',
+    label: 'AlgoHub',
     subtitle: 'Automated strategy engine',
-    badge: 'Core',
-    badgeColor: 'emerald',
+    badge: 'CORE',
     iconName: 'Bot',
   },
   {
@@ -47,7 +53,7 @@ export const MAIN_NAVIGATION: NavItemConfig[] = [
   },
   {
     id: 'risk-monitor',
-    label: 'Risk Monitor',
+    label: 'Risk Guard',
     subtitle: 'Capital protection',
     iconName: 'ShieldCheck',
   },
