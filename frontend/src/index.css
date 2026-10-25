@@ -1191,6 +1191,7 @@ body {
 .bw-hero-title .bw-highlight {
   background: linear-gradient(180deg, #ffffff 30%, #a1a1aa 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -1374,6 +1375,7 @@ body {
   letter-spacing: -2px;
   background: linear-gradient(135deg, #ffffff 0%, #d4d4d8 40%, #71717a 80%, #3f3f46 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.7));
   text-transform: lowercase;
