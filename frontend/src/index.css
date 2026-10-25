@@ -1535,9 +1535,9 @@ body {
 }
 
 .bw-cta-primary {
-  background: #ffffff;
-  color: #060709;
-  border: 1px solid #ffffff;
+  background: #10b981;
+  color: #04070b;
+  border: 1px solid #10b981;
   font-size: 16px;
   font-weight: 700;
   padding: 14px 34px;
@@ -1547,13 +1547,14 @@ body {
   align-items: center;
   gap: 8px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 24px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 24px rgba(16, 185, 129, 0.3);
 }
 
 .bw-cta-primary:hover {
-  background: #f4f4f5;
+  background: #34d399;
+  border-color: #34d399;
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(255, 255, 255, 0.32);
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.45);
 }
 
 .bw-cta-secondary {
@@ -1620,220 +1621,230 @@ body {
   color: #ffffff;
 }
 
-/* ================= 3D SHOWCASE CENTERPIECE (B&W) ================= */
+/* ================= 3D SHOWCASE CENTERPIECE (White + Black + Green) ================= */
 .bw-showcase-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
-  perspective: 1000px;
+  perspective: 1200px;
+  width: 100%;
 }
 
 .bw-showcase-toggle-tabs {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(13, 17, 23, 0.9);
+  border: 1px solid rgba(16, 185, 129, 0.2);
   border-radius: 9999px;
-  padding: 3px;
-  margin-bottom: 24px;
+  padding: 4px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  z-index: 10;
 }
 
 .bw-tab-btn {
   background: transparent;
   border: none;
-  color: #a1a1aa;
+  color: #94a3b8;
   font-size: 12px;
   font-weight: 600;
-  padding: 6px 14px;
+  padding: 6px 16px;
   border-radius: 9999px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bw-tab-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .bw-tab-btn.active {
-  background: #ffffff;
-  color: #060709;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  background: #10b981;
+  color: #04070b;
+  font-weight: 700;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.45);
 }
 
+/* 3D Visual Stage */
 .bw-3d-stage {
   position: relative;
-  width: 440px;
-  height: 270px;
+  width: 100%;
+  max-width: 540px;
+  height: 360px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* 3D Zero Element in Monochrome Metallic Chrome */
-.bw-3d-zero-cluster {
-  position: relative;
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 12px;
-}
-
-.bw-3d-zero-wrap {
-  position: relative;
-  width: 170px;
-  height: 220px;
-  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.8));
-}
-
-.bw-3d-zero-svg {
+.wbg-scene-svg {
   width: 100%;
   height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 25px 40px rgba(0, 0, 0, 0.85));
 }
 
-.bw-3d-text-wrap {
-  display: flex;
-  flex-direction: column;
+/* Animated 3D floating keyframes */
+.wbg-floating-group {
+  animation: wbgFloat 4.5s ease-in-out infinite alternate;
+  transform-origin: 330px 195px;
 }
 
-.bw-3d-text-fee {
-  font-size: 78px;
-  font-weight: 900;
-  line-height: 0.85;
-  letter-spacing: -2px;
-  background: linear-gradient(135deg, #ffffff 0%, #d4d4d8 40%, #71717a 80%, #3f3f46 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.7));
-  text-transform: lowercase;
+.wbg-eth-group {
+  animation: wbgFloatEth 5s ease-in-out infinite alternate;
+  transform-origin: 120px 290px;
 }
 
-.bw-3d-text-sub {
-  font-size: 13px;
-  letter-spacing: 2px;
-  font-weight: 700;
-  color: #a1a1aa;
-  text-transform: uppercase;
-  margin-top: 6px;
+.wbg-avatar-group {
+  animation: wbgPulseBeam 3.6s ease-in-out infinite alternate;
 }
 
-/* Floating 3D Coins in Black & White / Chrome */
-.bw-floating-coin {
+.wbg-usdc-coin {
+  animation: wbgFloatSlow 6s ease-in-out infinite alternate;
+}
+
+.wbg-sol-coin {
+  animation: wbgFloatSlow 5.5s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes wbgFloat {
+  0% { transform: translateY(0px) rotate(0deg); }
+  100% { transform: translateY(-10px) rotate(1.5deg); }
+}
+
+@keyframes wbgFloatEth {
+  0% { transform: translateY(0px) rotate(0deg); }
+  100% { transform: translateY(-7px) rotate(-2deg); }
+}
+
+@keyframes wbgFloatSlow {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-12px); }
+}
+
+@keyframes wbgPulseBeam {
+  0% { opacity: 0.92; filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.4)); }
+  100% { opacity: 1; filter: drop-shadow(0 0 18px rgba(16, 185, 129, 0.8)); }
+}
+
+/* Interactive Floating Stat Badge on Coin */
+.wbg-floating-stat-chip {
   position: absolute;
-  border-radius: 50%;
+  top: 45px;
+  left: 20px;
+  background: rgba(9, 12, 17, 0.88);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  backdrop-filter: blur(12px);
+  padding: 6px 12px;
+  border-radius: 9999px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.8), inset 0 2px 4px rgba(255, 255, 255, 0.6);
-  z-index: 5;
-  transition: transform 0.3s ease;
+  gap: 8px;
+  font-size: 11.5px;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(16, 185, 129, 0.2);
+  z-index: 20;
+  animation: chipFloat 4s ease-in-out infinite alternate;
 }
 
-.bw-floating-coin:hover {
-  transform: scale(1.1) translateY(-4px);
+.wbg-stat-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
 }
 
-.bw-coin-btc {
-  width: 76px;
-  height: 76px;
-  left: 10px;
-  bottom: 30px;
-  background: linear-gradient(145deg, #f4f4f5 0%, #a1a1aa 50%, #3f3f46 100%);
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  animation: floatBtc 4s ease-in-out infinite alternate;
+@keyframes chipFloat {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-6px); }
 }
 
-.bw-coin-eth {
-  width: 58px;
-  height: 58px;
-  right: 50px;
-  top: 15px;
-  background: linear-gradient(145deg, #ffffff 0%, #cbd5e1 50%, #475569 100%);
-  border: 2px solid rgba(255, 255, 255, 0.9);
-  animation: floatEth 3.6s ease-in-out infinite alternate;
-}
-
-.bw-coin-sol {
-  width: 44px;
-  height: 44px;
-  right: 25px;
-  bottom: 60px;
-  background: linear-gradient(145deg, #e4e4e7 0%, #71717a 60%, #18181b 100%);
-  border: 1.5px solid rgba(255, 255, 255, 0.6);
-  animation: floatSol 4.4s ease-in-out infinite alternate;
-}
-
-@keyframes floatBtc {
-  0% { transform: translateY(0px) rotate(-4deg); }
-  100% { transform: translateY(-12px) rotate(3deg); }
-}
-
-@keyframes floatEth {
-  0% { transform: translateY(0px) rotate(6deg); }
-  100% { transform: translateY(-14px) rotate(-5deg); }
-}
-
-@keyframes floatSol {
-  0% { transform: translateY(0px) rotate(0deg); }
-  100% { transform: translateY(-8px) rotate(8deg); }
-}
-
-/* 3 Cards Below Centerpiece (Matching Screenshot 3 orange boxes, but in B&W) */
+/* 3 Pillars Below Centerpiece (White + Black + Green) */
 .bw-three-pillars {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   width: 100%;
-  margin-top: 10px;
+  margin-top: 16px;
+  z-index: 10;
 }
 
 .bw-pillar-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 8px;
+  background: rgba(9, 12, 17, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
   padding: 14px 12px;
   text-align: center;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.bw-pillar-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  transition: background 0.25s ease;
 }
 
 .bw-pillar-card:hover {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.05) 100%);
-  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(14, 19, 27, 0.95);
+  border-color: rgba(16, 185, 129, 0.4);
   transform: translateY(-3px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.7), 0 0 20px rgba(16, 185, 129, 0.15);
+}
+
+.bw-pillar-card:hover::before {
+  background: #10b981;
 }
 
 .bw-pillar-card.active {
-  background: linear-gradient(180deg, #ffffff 0%, #e4e4e7 100%);
-  border-color: #ffffff;
-  color: #060709;
+  background: rgba(14, 21, 28, 0.98);
+  border-color: #10b981;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8), 0 0 24px rgba(16, 185, 129, 0.28);
 }
 
-.bw-pillar-card.active .bw-pillar-title,
-.bw-pillar-card.active .bw-pillar-val,
-.bw-pillar-card.active .bw-pillar-sub {
-  color: #060709;
+.bw-pillar-card.active::before {
+  background: #10b981;
 }
 
 .bw-pillar-title {
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.8px;
-  color: #a1a1aa;
+  color: #94a3b8;
   text-transform: uppercase;
 }
 
 .bw-pillar-val {
-  font-size: 20px;
+  font-size: 21px;
   font-weight: 800;
   color: #ffffff;
   margin: 4px 0 2px 0;
   letter-spacing: -0.3px;
+  font-family: var(--font-mono);
+}
+
+.bw-pillar-card.active .bw-pillar-val {
+  color: #10b981;
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
 }
 
 .bw-pillar-sub {
   font-size: 10.5px;
-  color: #71717a;
+  color: #64748b;
   white-space: nowrap;
 }
 

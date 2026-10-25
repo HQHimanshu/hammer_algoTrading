@@ -362,101 +362,346 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               </button>
             </div>
 
-            {/* 3D Centerpiece Visual Stage */}
+            {/* 3D Centerpiece Visual Stage: White + Black + Green Dynamic Scene */}
             <div className="bw-3d-stage">
-              {/* Floating 3D Chrome Coins */}
-              <div className="bw-floating-coin bw-coin-btc" title="Bitcoin Futures">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="11" fill="url(#btcGlow)" stroke="#ffffff" strokeWidth="1.2" />
+              {/* Floating Live Signal Chip */}
+              <div className="wbg-floating-stat-chip">
+                <span className="wbg-stat-dot"></span>
+                <span>Sub-ms Quant Stream Active</span>
+              </div>
+
+              <svg className="wbg-scene-svg" viewBox="0 0 540 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  {/* Radial Green Ambient Aura */}
+                  <radialGradient id="greenAtmosphere" cx="60%" cy="45%" r="65%">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.32" />
+                    <stop offset="45%" stopColor="#059669" stopOpacity="0.12" />
+                    <stop offset="100%" stopColor="#05070a" stopOpacity="0" />
+                  </radialGradient>
+
+                  {/* 3D Green Cylinder Beam Shading */}
+                  <linearGradient id="greenBeamCylinder" x1="0%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%" stopColor="#064e3b" />
+                    <stop offset="25%" stopColor="#047857" />
+                    <stop offset="55%" stopColor="#10b981" />
+                    <stop offset="85%" stopColor="#34d399" />
+                    <stop offset="100%" stopColor="#a7f3d0" />
+                  </linearGradient>
+
+                  {/* Green Beam Specular Ridge */}
+                  <linearGradient id="beamRidgeLight" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#a7f3d0" stopOpacity="0.9" />
+                    <stop offset="60%" stopColor="#34d399" stopOpacity="0.6" />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                  </linearGradient>
+
+                  {/* Mini Avatar Green Trail */}
+                  <linearGradient id="miniBeamGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#065f46" />
+                    <stop offset="40%" stopColor="#10b981" />
+                    <stop offset="100%" stopColor="#6ee7b7" />
+                  </linearGradient>
+
+                  {/* Bitcoin Outer Rim Gradient */}
+                  <linearGradient id="btcGoldCountric" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#fef08a" />
+                    <stop offset="25%" stopColor="#eab308" />
+                    <stop offset="55%" stopColor="#ca8a04" />
+                    <stop offset="85%" stopColor="#a16207" />
+                    <stop offset="100%" stopColor="#713f12" />
+                  </linearGradient>
+
+                  {/* Bitcoin 3D Thickness Edge */}
+                  <linearGradient id="btcEdge3d" x1="100%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#a16207" />
+                    <stop offset="40%" stopColor="#713f12" />
+                    <stop offset="70%" stopColor="#451a03" />
+                    <stop offset="100%" stopColor="#1c1917" />
+                  </linearGradient>
+
+                  {/* Bitcoin Basin Gradient */}
+                  <radialGradient id="btcBasinGrad" cx="45%" cy="40%" r="60%">
+                    <stop offset="0%" stopColor="#fde047" />
+                    <stop offset="40%" stopColor="#eab308" />
+                    <stop offset="80%" stopColor="#b45309" />
+                    <stop offset="100%" stopColor="#78350f" />
+                  </radialGradient>
+
+                  {/* Obsidian Ethereum Rim */}
+                  <linearGradient id="ethObsidianRim" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#94a3b8" />
+                    <stop offset="30%" stopColor="#334155" />
+                    <stop offset="70%" stopColor="#1e293b" />
+                    <stop offset="100%" stopColor="#0f172a" />
+                  </linearGradient>
+
+                  {/* Obsidian Ethereum Face */}
+                  <radialGradient id="ethObsidianFace" cx="40%" cy="35%" r="65%">
+                    <stop offset="0%" stopColor="#1e293b" />
+                    <stop offset="50%" stopColor="#0f172a" />
+                    <stop offset="100%" stopColor="#020617" />
+                  </radialGradient>
+
+                  {/* ETH Crystal Facet Gradients */}
+                  <linearGradient id="ethFacetTop" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#ffffff" />
+                    <stop offset="100%" stopColor="#e2e8f0" />
+                  </linearGradient>
+                  <linearGradient id="ethFacetLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#cbd5e1" />
+                    <stop offset="100%" stopColor="#94a3b8" />
+                  </linearGradient>
+                  <linearGradient id="ethFacetRight" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#94a3b8" />
+                    <stop offset="100%" stopColor="#475569" />
+                  </linearGradient>
+                  <linearGradient id="ethFacetBottom" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#64748b" />
+                    <stop offset="100%" stopColor="#1e293b" />
+                  </linearGradient>
+
+                  {/* Volumetric Beam Blur & Shadows */}
+                  <filter id="beamGlow" x="-30%" y="-30%" width="160%" height="160%">
+                    <feGaussianBlur stdDeviation="16" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                  <filter id="coinHeavyShadow" x="-30%" y="-30%" width="170%" height="170%">
+                    <feDropShadow dx="-10" dy="24" stdDeviation="18" floodColor="#000000" floodOpacity="0.9" />
+                  </filter>
+                </defs>
+
+                {/* Ambient Green Atmospheric Radiance */}
+                <rect x="0" y="0" width="540" height="380" fill="url(#greenAtmosphere)" />
+
+                {/* Background Floating Token 1: USDC (Blurred) */}
+                <g className="wbg-usdc-coin" opacity="0.65" style={{ filter: 'blur(1.6px)' }}>
+                  <ellipse cx="230" cy="52" rx="22" ry="19" transform="rotate(-15 230 52)" fill="#1e3a8a" stroke="#60a5fa" strokeWidth="1.5" />
+                  <ellipse cx="230" cy="52" rx="17" ry="14" transform="rotate(-15 230 52)" fill="#2563eb" />
+                  <text x="230" y="58" fill="#ffffff" fontSize="17" fontWeight="800" textAnchor="middle" fontFamily="sans-serif">$</text>
+                </g>
+
+                {/* Background Floating Token 2: Solana (Blurred) */}
+                <g className="wbg-sol-coin" opacity="0.55" style={{ filter: 'blur(2px)' }}>
+                  <circle cx="485" cy="85" r="18" fill="#18181b" stroke="#34d399" strokeWidth="1.2" />
+                  <rect x="475" y="77" width="20" height="3" rx="1.5" fill="#34d399" transform="rotate(-12 485 78)" />
+                  <rect x="476" y="83" width="20" height="3" rx="1.5" fill="#a855f7" transform="rotate(-12 485 84)" />
+                  <rect x="474" y="89" width="20" height="3" rx="1.5" fill="#10b981" transform="rotate(-12 485 90)" />
+                </g>
+
+                {/* Background Trader Avatar Shooting on Mini Green Beam (From Reference Image) */}
+                <g className="wbg-avatar-group">
+                  {/* Mini beam trail shooting upwards-right */}
+                  <polygon points="120,135 125,122 250,55 245,68" fill="url(#miniBeamGrad)" opacity="0.85" />
+                  <line x1="125" y1="122" x2="250" y2="55" stroke="#86efac" strokeWidth="1.5" opacity="0.9" />
+
+                  {/* Avatar Circle Badge */}
+                  <circle cx="122" cy="128" r="14" fill="#090d14" stroke="#ffffff" strokeWidth="2" />
+                  {/* Avatar Silhouette */}
+                  <circle cx="122" cy="125" r="4.5" fill="#10b981" />
+                  <path d="M114 137C114 133 117.5 131 122 131C126.5 131 130 133 130 137" fill="#34d399" />
+                </g>
+
+                {/* THE GIANT GREEN BEAM CYLINDER (Shooting from behind Bitcoin towards top-right) */}
+                <g className="wbg-floating-group">
+                  {/* Deep Green Ambient Emission under beam */}
                   <path
-                    d="M13.5 8.5C14.5 8.5 15.2 7.8 15.2 6.8C15.2 5.8 14.5 5.2 13.5 5.2H10V8.5H13.5ZM13.8 12.2C15 12.2 15.8 11.4 15.8 10.2C15.8 9.1 14.9 8.3 13.8 8.3H10V12.2H13.8ZM12.2 3.5V5.2H13.5V3.5H12.2ZM10.5 3.5V5.2H11.8V3.5H10.5ZM12.2 13.8V15.5H13.5V13.8H12.2ZM10.5 13.8V15.5H11.8V13.8H10.5ZM8.5 5.2V13.8H14.2C15.8 13.8 17.2 12.6 17.2 11C17.2 9.8 16.4 8.8 15.2 8.4C16.1 8 16.6 7.1 16.6 6.1C16.6 4.7 15.4 3.7 13.8 3.7H8.5V5.2Z"
-                    fill="#0a0a0c"
+                    d="M 285 110 L 545 15 L 565 75 L 435 295 Z"
+                    fill="#10b981"
+                    opacity="0.3"
+                    filter="url(#beamGlow)"
                   />
-                  <defs>
-                    <linearGradient id="btcGlow" x1="0" y1="0" x2="24" y2="24">
-                      <stop offset="0%" stopColor="#ffffff" />
-                      <stop offset="50%" stopColor="#d4d4d8" />
-                      <stop offset="100%" stopColor="#71717a" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </div>
 
-              <div className="bw-floating-coin bw-coin-eth" title="Ether Options">
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 2L4.5 12.5L12 16L19.5 12.5L12 2Z" fill="#ffffff" />
-                  <path d="M12 16L4.5 12.5L12 22L19.5 12.5L12 16Z" fill="#a1a1aa" opacity="0.85" />
-                  <path d="M12 2L12 16L19.5 12.5L12 2Z" fill="#e4e4e7" />
-                </svg>
-              </div>
+                  {/* Solid 3D Cylinder Body */}
+                  <path
+                    d="M 286 112 L 540 22 L 565 65 L 442 278 Z"
+                    fill="url(#greenBeamCylinder)"
+                  />
 
-              <div className="bw-floating-coin bw-coin-sol" title="Solana High Speed">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                  <rect width="24" height="24" rx="12" fill="#18181b" />
-                  <path d="M6 7H18L16 9H4L6 7Z" fill="#ffffff" />
-                  <path d="M8 11H20L18 13H6L8 11Z" fill="#d4d4d8" />
-                  <path d="M6 15H18L16 17H4L6 15Z" fill="#a1a1aa" />
-                </svg>
-              </div>
+                  {/* Specular White-Green Ridge along top beam edge */}
+                  <line
+                    x1="286"
+                    y1="112"
+                    x2="540"
+                    y2="22"
+                    stroke="url(#beamRidgeLight)"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                  />
 
-              {/* 3D Chrome Zero / Metrics Centerpiece Cluster */}
-              <div className="bw-3d-zero-cluster">
-                <div className="bw-3d-zero-wrap">
-                  <svg className="bw-3d-zero-svg" viewBox="0 0 170 220" fill="none">
-                    <defs>
-                      <linearGradient id="chrome3d" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#ffffff" />
-                        <stop offset="25%" stopColor="#f4f4f5" />
-                        <stop offset="50%" stopColor="#a1a1aa" />
-                        <stop offset="75%" stopColor="#ffffff" />
-                        <stop offset="100%" stopColor="#3f3f46" />
-                      </linearGradient>
-                      <linearGradient id="bevelRim" x1="100%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
-                        <stop offset="50%" stopColor="#71717a" stopOpacity="0.3" />
-                        <stop offset="100%" stopColor="#000000" stopOpacity="0.9" />
-                      </linearGradient>
-                      <filter id="shadow3d" x="-20%" y="-20%" width="140%" height="140%">
-                        <feDropShadow dx="12" dy="18" stdDeviation="16" floodColor="#000000" floodOpacity="0.8" />
-                      </filter>
-                    </defs>
+                  {/* Ambient cylinder shadow boundary */}
+                  <path
+                    d="M 442 278 L 565 65 L 560 85 L 430 300 Z"
+                    fill="#022c22"
+                    opacity="0.85"
+                  />
+                </g>
 
-                    {/* 3D Extrusion Back Layer */}
+                {/* GIANT 3D BITCOIN COIN (Matching Reference Image) */}
+                <g className="wbg-floating-group" filter="url(#coinHeavyShadow)">
+                  {/* 3D Extruded Coin Edge (Thickness) */}
+                  <path
+                    d="M 252 232 C 238 185 272 132 328 114 C 384 96 441 120 455 167 L 444 185 C 430 138 373 114 317 132 C 261 150 227 203 241 250 Z"
+                    fill="url(#btcEdge3d)"
+                  />
+                  {/* Lower Coin Edge Rim highlight */}
+                  <ellipse
+                    cx="342"
+                    cy="204"
+                    rx="106"
+                    ry="92"
+                    transform="rotate(-18 342 204)"
+                    fill="#451a03"
+                  />
+
+                  {/* Outer Beveled Metallic Rim */}
+                  <ellipse
+                    cx="348"
+                    cy="194"
+                    rx="106"
+                    ry="92"
+                    transform="rotate(-18 348 194)"
+                    fill="url(#btcGoldCountric)"
+                    stroke="#fef08a"
+                    strokeWidth="2.5"
+                  />
+
+                  {/* Concentric Inner Bevel Ring (Ridge from reference) */}
+                  <ellipse
+                    cx="348"
+                    cy="194"
+                    rx="97"
+                    ry="84"
+                    transform="rotate(-18 348 194)"
+                    fill="none"
+                    stroke="#78350f"
+                    strokeWidth="2"
+                  />
+                  <ellipse
+                    cx="348"
+                    cy="194"
+                    rx="93"
+                    ry="80"
+                    transform="rotate(-18 348 194)"
+                    fill="url(#btcBasinGrad)"
+                    stroke="#ca8a04"
+                    strokeWidth="1.5"
+                  />
+
+                  {/* Specular Glare Arc on Upper Coin Rim */}
+                  <path
+                    d="M 270 155 C 300 120 365 110 415 125"
+                    stroke="#ffffff"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    opacity="0.8"
+                  />
+
+                  {/* 3D Embossed White Bitcoin Symbol (₿) */}
+                  <g transform="translate(348 194) rotate(-18) translate(-348 -194)">
+                    {/* Dark Depth Shadow under ₿ */}
                     <path
-                      d="M85 30C122 30 148 58 148 110C148 162 122 190 85 190C48 190 22 162 22 110C22 58 48 30 85 30ZM85 64C66 64 54 82 54 110C54 138 66 156 85 156C104 156 116 138 116 110C116 82 104 64 85 64Z"
-                      fill="#18181b"
-                      transform="translate(8, 12)"
+                      d="M336 142 V153 H342 V142 H348 V153 H352 C362 153 369 158 369 166 C369 171 366 175 361 178 C368 181 372 187 372 195 C372 206 364 213 352 213 H348 V224 H342 V213 H336 V224 H330 V213 H318 V142 H330 V153 H336 V142 Z M332 163 V177 H350 C356 177 360 174 360 170 C360 166 356 163 350 163 Z M332 187 V203 H352 C358 203 363 199 363 195 C363 191 358 187 352 187 Z"
+                      fill="#451a03"
+                      transform="translate(4 6)"
                     />
-
-                    {/* 3D Extrusion Bevel Mid Layer */}
+                    {/* 3D Extruded Wall under White ₿ */}
                     <path
-                      d="M85 30C122 30 148 58 148 110C148 162 122 190 85 190C48 190 22 162 22 110C22 58 48 30 85 30ZM85 64C66 64 54 82 54 110C54 138 66 156 85 156C104 156 116 138 116 110C116 82 104 64 85 64Z"
-                      fill="url(#bevelRim)"
-                      transform="translate(4, 6)"
+                      d="M336 142 V153 H342 V142 H348 V153 H352 C362 153 369 158 369 166 C369 171 366 175 361 178 C368 181 372 187 372 195 C372 206 364 213 352 213 H348 V224 H342 V213 H336 V224 H330 V213 H318 V142 H330 V153 H336 V142 Z M332 163 V177 H350 C356 177 360 174 360 170 C360 166 356 163 350 163 Z M332 187 V203 H352 C358 203 363 199 363 195 C363 191 358 187 352 187 Z"
+                      fill="#d4d4d8"
+                      transform="translate(1.5 2.5)"
                     />
-
-                    {/* Front Chrome Face */}
+                    {/* Front Pure White Embossed ₿ Face */}
                     <path
-                      d="M85 24C122 24 148 52 148 104C148 156 122 184 85 184C48 184 22 156 22 104C22 52 48 24 85 24ZM85 58C66 58 54 76 54 104C54 132 66 150 85 150C104 150 116 132 116 104C116 76 104 58 85 58Z"
-                      fill="url(#chrome3d)"
-                      stroke="#ffffff"
-                      strokeWidth="1.5"
-                    />
-
-                    {/* Specular Gleam Highlight */}
-                    <path
-                      d="M48 54C60 40 78 32 94 32C84 32 66 40 54 54C42 68 38 88 38 106C38 88 42 68 48 54Z"
+                      d="M336 142 V153 H342 V142 H348 V153 H352 C362 153 369 158 369 166 C369 171 366 175 361 178 C368 181 372 187 372 195 C372 206 364 213 352 213 H348 V224 H342 V213 H336 V224 H330 V213 H318 V142 H330 V153 H336 V142 Z M332 163 V177 H350 C356 177 360 174 360 170 C360 166 356 163 350 163 Z M332 187 V203 H352 C358 203 363 199 363 195 C363 191 358 187 352 187 Z"
                       fill="#ffffff"
-                      opacity="0.6"
+                      stroke="#f8fafc"
+                      strokeWidth="0.5"
                     />
-                  </svg>
-                </div>
+                  </g>
+                </g>
 
-                <div className="bw-3d-text-wrap">
-                  <span className="bw-3d-text-fee">{currentCenterpiece.textLabel}</span>
-                  <span className="bw-3d-text-sub">{currentCenterpiece.subText}</span>
-                </div>
-              </div>
+                {/* FOREGROUND OBSIDIAN BLACK ETHEREUM COIN (Matching Reference Image) */}
+                <g className="wbg-eth-group" filter="url(#coinHeavyShadow)">
+                  {/* Heavy Bottom Thickness */}
+                  <ellipse
+                    cx="115"
+                    cy="295"
+                    rx="88"
+                    ry="76"
+                    transform="rotate(-16 115 295)"
+                    fill="#020617"
+                  />
+
+                  {/* Outer Beveled Graphite Rim */}
+                  <ellipse
+                    cx="118"
+                    cy="288"
+                    rx="88"
+                    ry="76"
+                    transform="rotate(-16 118 288)"
+                    fill="url(#ethObsidianRim)"
+                    stroke="#64748b"
+                    strokeWidth="2"
+                  />
+
+                  {/* Concentric Step Ring */}
+                  <ellipse
+                    cx="118"
+                    cy="288"
+                    rx="80"
+                    ry="69"
+                    transform="rotate(-16 118 288)"
+                    fill="none"
+                    stroke="#0f172a"
+                    strokeWidth="2"
+                  />
+
+                  {/* Inner Obsidian Matte Basin */}
+                  <ellipse
+                    cx="118"
+                    cy="288"
+                    rx="76"
+                    ry="65"
+                    transform="rotate(-16 118 288)"
+                    fill="url(#ethObsidianFace)"
+                    stroke="#1e293b"
+                    strokeWidth="1"
+                  />
+
+                  {/* Metallic Platinum Specular Rim Arc */}
+                  <path
+                    d="M 55 260 C 80 230 135 225 175 240"
+                    stroke="#e2e8f0"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    opacity="0.75"
+                  />
+
+                  {/* 3D Faceted Diamond Ethereum Crystal (Ξ) */}
+                  <g transform="translate(118 288) rotate(-16) translate(-118 -288)">
+                    {/* Shadow underneath crystal */}
+                    <path
+                      d="M118 244 L88 288 L118 304 L148 288 Z M118 309 L88 293 L118 332 L148 293 Z"
+                      fill="#020617"
+                      transform="translate(3 5)"
+                      opacity="0.9"
+                    />
+
+                    {/* Top Diamond Facet: Crisp Pure White */}
+                    <polygon points="118,244 88,288 118,272" fill="url(#ethFacetTop)" />
+                    {/* Top Right Facet: Bright Silver */}
+                    <polygon points="118,244 118,272 148,288" fill="url(#ethFacetLeft)" />
+                    {/* Mid Left Facet */}
+                    <polygon points="88,288 118,272 118,304" fill="url(#ethFacetRight)" />
+                    {/* Mid Right Facet */}
+                    <polygon points="118,272 148,288 118,304" fill="url(#ethFacetBottom)" />
+
+                    {/* Bottom Lower Crystal Pyramid */}
+                    <polygon points="118,309 88,293 118,332" fill="url(#ethFacetLeft)" />
+                    <polygon points="118,309 148,293 118,332" fill="url(#ethFacetBottom)" />
+                  </g>
+                </g>
+              </svg>
             </div>
 
             {/* 3 Pillars Below Centerpiece (Matching Reference Orange Boxes, but in Luxury B&W) */}
