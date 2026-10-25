@@ -37,16 +37,11 @@ const iconMap = {
 export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab }) => {
   return (
     <aside className="sidebar">
-      <div className="brand-header">
-        <div className="brand-logo">
-          <Terminal size={22} className="brand-icon" />
-        </div>
-        <div className="brand-info">
-          <span className="brand-title">Hammer Trading</span>
-          <span className="brand-status">
-            <span className="status-dot"></span> Live Terminal
-          </span>
-        </div>
+      <div className="brand-header" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }} onClick={() => onSelectTab('home')}>
+        <img src="/hammer_logo.png" alt="Hammer Logo" className="app-sidebar-logo-img" />
+        <span className="brand-status">
+          <span className="status-dot"></span> Live Terminal
+        </span>
       </div>
 
       <div className="nav-section-title">MAIN NAVIGATION</div>

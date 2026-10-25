@@ -63,6 +63,20 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   return (
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    <header className="navbar-container">
+      {/* Top Navbar Row */}
+      <div className="navbar-top">
+        {/* Brand / Logo */}
+        <div className="navbar-brand" style={{ cursor: 'pointer' }} onClick={() => onSelectTab('home')}>
+          <img src="/hammer_logo.png" alt="Hammer Logo" className="app-navbar-logo-img" />
+          <div className="engine-status">
+            <span className="status-dot"></span>
+            <span className="status-text">LIVE</span>
+=======
+>>>>>>> 3ffa3b7ddf380dc4bd8b6d38b02b350734bb8a2f
     <header className="bw-navbar">
       {/* Brand & Left Navigation Links */}
       <div className="bw-nav-left">
@@ -77,6 +91,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="bw-brand-text">
             <span className="bw-brand-title">Hammer.</span>
             <span className="bw-brand-tag">QUANT | INDIA</span>
+<<<<<<< HEAD
+=======
+>>>>>>> b93865a034d183031f3b6bf769fd26af24171f30
+>>>>>>> 3ffa3b7ddf380dc4bd8b6d38b02b350734bb8a2f
           </div>
         </div>
 
