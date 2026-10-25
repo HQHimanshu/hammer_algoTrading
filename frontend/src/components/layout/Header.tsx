@@ -1,5 +1,4 @@
-import React from 'react';
-import { Search, Bell, Shield, ChevronDown } from 'lucide-react';
+import { Search, Bell, Shield, ChevronDown, Activity } from 'lucide-react';
 
 interface HeaderProps {
   pageTitle: string;
@@ -41,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({ pageTitle, pageSubtitle }) => {
         </button>
 
         <div className="user-profile">
-          <div className="user-avatar">H</div>
+          <div className="user-avatar" title="Quant Trader"><Activity size={16} /></div>
           <div className="user-details">
             <span className="user-name">Algorithmic Trader</span>
             <span className="user-role">FinGrad Execution</span>

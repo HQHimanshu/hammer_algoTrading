@@ -38,6 +38,116 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [hoveredCoin, setHoveredCoin] = useState<string | null>(null);
+  const [terminalStatus, setTerminalStatus] = useState<'running' | 'paused' | 'stopped'>('running');
+
+  // Interactive moving crypto elements inside the 3D Glass "H"
+  const glassHCoins = [
+    {
+      id: 'btc',
+      name: 'Bitcoin',
+      ticker: 'BTC',
+      price: '$67,840.20',
+      change: '+2.84%',
+      top: '22%',
+      left: '26%',
+      floatAnim: 'coinFloatA',
+      color: '#f59e0b',
+      glow: 'rgba(245, 158, 11, 0.75)',
+      symbolText: '₿',
+    },
+    {
+      id: 'eth1',
+      name: 'Ethereum',
+      ticker: 'ETH',
+      price: '$3,524.50',
+      change: '+3.18%',
+      top: '43%',
+      left: '26%',
+      floatAnim: 'coinFloatB',
+      color: '#60a5fa',
+      glow: 'rgba(96, 165, 250, 0.75)',
+      symbolText: 'Ξ',
+    },
+    {
+      id: 'sol1',
+      name: 'Solana',
+      ticker: 'SOL',
+      price: '$185.10',
+      change: '+5.42%',
+      top: '64%',
+      left: '26%',
+      floatAnim: 'coinFloatC',
+      color: '#10b981',
+      glow: 'rgba(16, 185, 129, 0.8)',
+      symbolText: '◎',
+    },
+    {
+      id: 'gem',
+      name: 'Alpha Gem',
+      ticker: 'ALPHA',
+      price: 'Zero Slip',
+      change: '100Hz',
+      top: '45%',
+      left: '39%',
+      floatAnim: 'coinFloatD',
+      color: '#38bdf8',
+      glow: 'rgba(56, 189, 248, 0.8)',
+      symbolText: '💎',
+    },
+    {
+      id: 'sol2',
+      name: 'Solana Perps',
+      ticker: 'SOL-P',
+      price: '$185.10',
+      change: '+5.42%',
+      top: '45%',
+      left: '51%',
+      floatAnim: 'coinFloatA',
+      color: '#06b6d4',
+      glow: 'rgba(6, 182, 212, 0.75)',
+      symbolText: '◎',
+    },
+    {
+      id: 'doge',
+      name: 'Dogecoin',
+      ticker: 'DOGE',
+      price: '$0.1420',
+      change: '+4.10%',
+      top: '46%',
+      left: '63%',
+      floatAnim: 'coinFloatB',
+      color: '#eab308',
+      glow: 'rgba(234, 179, 8, 0.8)',
+      symbolText: 'Ð',
+    },
+    {
+      id: 'eth2',
+      name: 'Ether Options',
+      ticker: 'ETH-OPT',
+      price: '$3,524.50',
+      change: '+3.18%',
+      top: '28%',
+      left: '73%',
+      floatAnim: 'coinFloatC',
+      color: '#38bdf8',
+      glow: 'rgba(56, 189, 248, 0.8)',
+      symbolText: 'Ξ',
+    },
+    {
+      id: 'pepe',
+      name: 'Pepe Scalper',
+      ticker: 'PEPE',
+      price: '$0.0000098',
+      change: '+7.20%',
+      top: '63%',
+      left: '73%',
+      floatAnim: 'coinFloatD',
+      color: '#22c55e',
+      glow: 'rgba(34, 197, 94, 0.85)',
+      symbolText: '🐸',
+    },
+  ];
 
   // Navigate handler helper
   const handleNav = (tab: NavigationId) => {
@@ -140,13 +250,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       <header className="bw-navbar">
         <div className="bw-nav-left">
           <div className="bw-brand-link" onClick={() => handleNav('home')}>
-            <div className="bw-logo-icon">
-              <Terminal size={18} strokeWidth={2.5} />
-            </div>
-            <div className="bw-brand-text">
-              <span className="bw-brand-title">Hammer.</span>
-              <span className="bw-brand-tag">QUANT | INDIA</span>
-            </div>
+            <img src="/hammer_logo.png" alt="Hammer Logo" className="bw-header-logo-img" />
+            <span className="bw-brand-tag-pill">QUANT | INDIA</span>
           </div>
 
           <nav className="bw-nav-links">
@@ -290,8 +395,15 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   setIsAuthModalOpen(true);
                 }}
               >
-                Sign Up
-                <ArrowRight size={18} />
+                <span className="cta-sheen-sweep"></span>
+                <span className="cta-glow-pulse"></span>
+                <div className="cta-btn-text-wrap">
+                  <span className="cta-btn-main">Sign Up</span>
+                  <span className="cta-btn-sub">0 INR DEPOSIT FEE</span>
+                </div>
+                <div className="cta-icon-circle">
+                  <ArrowRight size={18} />
+                </div>
               </button>
 
               <button
@@ -299,8 +411,16 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                 type="button"
                 onClick={() => handleNav('algo-trading')}
               >
-                <Bot size={18} />
-                Explore Algo Terminal
+                <span className="cta-secondary-glow"></span>
+                <div className="cta-terminal-indicator">
+                  <span className="cta-ping-dot"></span>
+                  <Bot size={18} className="cta-bot-icon" />
+                </div>
+                <div className="cta-btn-text-wrap">
+                  <span className="cta-btn-main">Explore Algo Terminal</span>
+                  <span className="cta-btn-sub">SUB-MS PYTHON ENGINE</span>
+                </div>
+                <span className="cta-kbd-chip">&gt;_ CLI</span>
               </button>
             </div>
 
@@ -362,361 +482,119 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               </button>
             </div>
 
-            {/* 3D Centerpiece Visual Stage: White + Black + Green Dynamic Scene */}
+            {/* 3D Centerpiece Visual Stage: 3D Transparent Glass Letter "H" with Animated Moving Elements */}
             <div className="bw-3d-stage">
-              {/* Floating Live Signal Chip */}
-              <div className="wbg-floating-stat-chip">
+              {/* Green Atmospheric Glow Aura */}
+              <div className="glass-h-glow-aura"></div>
+
+              {/* Floating Live Signal Chips */}
+              <div className="glass-h-chip glass-h-chip-topleft">
                 <span className="wbg-stat-dot"></span>
-                <span>Sub-ms Quant Stream Active</span>
+                <span>Sub-ms Latency: 0.8ms</span>
               </div>
 
-              <svg className="wbg-scene-svg" viewBox="0 0 540 380" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  {/* Radial Green Ambient Aura */}
-                  <radialGradient id="greenAtmosphere" cx="60%" cy="45%" r="65%">
-                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.32" />
-                    <stop offset="45%" stopColor="#059669" stopOpacity="0.12" />
-                    <stop offset="100%" stopColor="#05070a" stopOpacity="0" />
-                  </radialGradient>
+              <div className="glass-h-chip glass-h-chip-topright">
+                <Shield size={14} color="#10b981" />
+                <span>Zero Slippage Guard</span>
+              </div>
 
-                  {/* 3D Green Cylinder Beam Shading */}
-                  <linearGradient id="greenBeamCylinder" x1="0%" y1="100%" x2="0%" y2="0%">
-                    <stop offset="0%" stopColor="#064e3b" />
-                    <stop offset="25%" stopColor="#047857" />
-                    <stop offset="55%" stopColor="#10b981" />
-                    <stop offset="85%" stopColor="#34d399" />
-                    <stop offset="100%" stopColor="#a7f3d0" />
-                  </linearGradient>
+              <div className="glass-h-chip glass-h-chip-bottomright">
+                <TrendingUp size={14} color="#10b981" />
+                <span>Alpha Engine: +44.2%</span>
+              </div>
 
-                  {/* Green Beam Specular Ridge */}
-                  <linearGradient id="beamRidgeLight" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#a7f3d0" stopOpacity="0.9" />
-                    <stop offset="60%" stopColor="#34d399" stopOpacity="0.6" />
-                    <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-                  </linearGradient>
+              {/* 3D Glass Letter "H" Render Container with Moving Elements Layer */}
+              <div className="glass-h-render-container">
+                <img
+                  src="/hammer_glass_h_crypto.jpg"
+                  alt="Hammer 3D Glass H with Crypto Coins & Grass Pedestal"
+                  className="glass-h-image"
+                />
 
-                  {/* Mini Avatar Green Trail */}
-                  <linearGradient id="miniBeamGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#065f46" />
-                    <stop offset="40%" stopColor="#10b981" />
-                    <stop offset="100%" stopColor="#6ee7b7" />
-                  </linearGradient>
+                {/* Vertical ascending quantum energy sparks inside the glass chamber */}
+                <div className="h-quantum-spark h-spark-1"></div>
+                <div className="h-quantum-spark h-spark-2"></div>
+                <div className="h-quantum-spark h-spark-3"></div>
+                <div className="h-quantum-spark h-spark-4"></div>
+                <div className="h-quantum-spark h-spark-5"></div>
 
-                  {/* Bitcoin Outer Rim Gradient */}
-                  <linearGradient id="btcGoldCountric" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#fef08a" />
-                    <stop offset="25%" stopColor="#eab308" />
-                    <stop offset="55%" stopColor="#ca8a04" />
-                    <stop offset="85%" stopColor="#a16207" />
-                    <stop offset="100%" stopColor="#713f12" />
-                  </linearGradient>
+                {/* Horizontal scanline laser across the H crossbar */}
+                <div className="h-crossbar-pulse-beam"></div>
 
-                  {/* Bitcoin 3D Thickness Edge */}
-                  <linearGradient id="btcEdge3d" x1="100%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#a16207" />
-                    <stop offset="40%" stopColor="#713f12" />
-                    <stop offset="70%" stopColor="#451a03" />
-                    <stop offset="100%" stopColor="#1c1917" />
-                  </linearGradient>
+                {/* Animated Moving Crypto Tokens Floating Inside the Glass "H" */}
+                {glassHCoins.map((coin) => {
+                  const isHovered = hoveredCoin === coin.id;
 
-                  {/* Bitcoin Basin Gradient */}
-                  <radialGradient id="btcBasinGrad" cx="45%" cy="40%" r="60%">
-                    <stop offset="0%" stopColor="#fde047" />
-                    <stop offset="40%" stopColor="#eab308" />
-                    <stop offset="80%" stopColor="#b45309" />
-                    <stop offset="100%" stopColor="#78350f" />
-                  </radialGradient>
+                  return (
+                    <div
+                      key={coin.id}
+                      className={`h-moving-coin ${coin.floatAnim} ${isHovered ? 'hovered' : ''}`}
+                      style={{
+                        top: coin.top,
+                        left: coin.left,
+                        '--coin-color': coin.color,
+                        '--coin-glow': coin.glow,
+                      } as React.CSSProperties}
+                      onMouseEnter={() => setHoveredCoin(coin.id)}
+                      onMouseLeave={() => setHoveredCoin(null)}
+                    >
+                      {/* Animated Token Disc */}
+                      <div className="coin-disc">
+                        <span className="coin-symbol-text">{coin.symbolText}</span>
+                        <div className="coin-shimmer"></div>
+                      </div>
 
-                  {/* Obsidian Ethereum Rim */}
-                  <linearGradient id="ethObsidianRim" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#94a3b8" />
-                    <stop offset="30%" stopColor="#334155" />
-                    <stop offset="70%" stopColor="#1e293b" />
-                    <stop offset="100%" stopColor="#0f172a" />
-                  </linearGradient>
-
-                  {/* Obsidian Ethereum Face */}
-                  <radialGradient id="ethObsidianFace" cx="40%" cy="35%" r="65%">
-                    <stop offset="0%" stopColor="#1e293b" />
-                    <stop offset="50%" stopColor="#0f172a" />
-                    <stop offset="100%" stopColor="#020617" />
-                  </radialGradient>
-
-                  {/* ETH Crystal Facet Gradients */}
-                  <linearGradient id="ethFacetTop" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#ffffff" />
-                    <stop offset="100%" stopColor="#e2e8f0" />
-                  </linearGradient>
-                  <linearGradient id="ethFacetLeft" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#cbd5e1" />
-                    <stop offset="100%" stopColor="#94a3b8" />
-                  </linearGradient>
-                  <linearGradient id="ethFacetRight" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#94a3b8" />
-                    <stop offset="100%" stopColor="#475569" />
-                  </linearGradient>
-                  <linearGradient id="ethFacetBottom" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#64748b" />
-                    <stop offset="100%" stopColor="#1e293b" />
-                  </linearGradient>
-
-                  {/* Volumetric Beam Blur & Shadows */}
-                  <filter id="beamGlow" x="-30%" y="-30%" width="160%" height="160%">
-                    <feGaussianBlur stdDeviation="16" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                  </filter>
-                  <filter id="coinHeavyShadow" x="-30%" y="-30%" width="170%" height="170%">
-                    <feDropShadow dx="-10" dy="24" stdDeviation="18" floodColor="#000000" floodOpacity="0.9" />
-                  </filter>
-                </defs>
-
-                {/* Ambient Green Atmospheric Radiance */}
-                <rect x="0" y="0" width="540" height="380" fill="url(#greenAtmosphere)" />
-
-                {/* Background Floating Token 1: USDC (Blurred) */}
-                <g className="wbg-usdc-coin" opacity="0.65" style={{ filter: 'blur(1.6px)' }}>
-                  <ellipse cx="230" cy="52" rx="22" ry="19" transform="rotate(-15 230 52)" fill="#1e3a8a" stroke="#60a5fa" strokeWidth="1.5" />
-                  <ellipse cx="230" cy="52" rx="17" ry="14" transform="rotate(-15 230 52)" fill="#2563eb" />
-                  <text x="230" y="58" fill="#ffffff" fontSize="17" fontWeight="800" textAnchor="middle" fontFamily="sans-serif">$</text>
-                </g>
-
-                {/* Background Floating Token 2: Solana (Blurred) */}
-                <g className="wbg-sol-coin" opacity="0.55" style={{ filter: 'blur(2px)' }}>
-                  <circle cx="485" cy="85" r="18" fill="#18181b" stroke="#34d399" strokeWidth="1.2" />
-                  <rect x="475" y="77" width="20" height="3" rx="1.5" fill="#34d399" transform="rotate(-12 485 78)" />
-                  <rect x="476" y="83" width="20" height="3" rx="1.5" fill="#a855f7" transform="rotate(-12 485 84)" />
-                  <rect x="474" y="89" width="20" height="3" rx="1.5" fill="#10b981" transform="rotate(-12 485 90)" />
-                </g>
-
-                {/* Background Trader Avatar Shooting on Mini Green Beam (From Reference Image) */}
-                <g className="wbg-avatar-group">
-                  {/* Mini beam trail shooting upwards-right */}
-                  <polygon points="120,135 125,122 250,55 245,68" fill="url(#miniBeamGrad)" opacity="0.85" />
-                  <line x1="125" y1="122" x2="250" y2="55" stroke="#86efac" strokeWidth="1.5" opacity="0.9" />
-
-                  {/* Avatar Circle Badge */}
-                  <circle cx="122" cy="128" r="14" fill="#090d14" stroke="#ffffff" strokeWidth="2" />
-                  {/* Avatar Silhouette */}
-                  <circle cx="122" cy="125" r="4.5" fill="#10b981" />
-                  <path d="M114 137C114 133 117.5 131 122 131C126.5 131 130 133 130 137" fill="#34d399" />
-                </g>
-
-                {/* THE GIANT GREEN BEAM CYLINDER (Shooting from behind Bitcoin towards top-right) */}
-                <g className="wbg-floating-group">
-                  {/* Deep Green Ambient Emission under beam */}
-                  <path
-                    d="M 285 110 L 545 15 L 565 75 L 435 295 Z"
-                    fill="#10b981"
-                    opacity="0.3"
-                    filter="url(#beamGlow)"
-                  />
-
-                  {/* Solid 3D Cylinder Body */}
-                  <path
-                    d="M 286 112 L 540 22 L 565 65 L 442 278 Z"
-                    fill="url(#greenBeamCylinder)"
-                  />
-
-                  {/* Specular White-Green Ridge along top beam edge */}
-                  <line
-                    x1="286"
-                    y1="112"
-                    x2="540"
-                    y2="22"
-                    stroke="url(#beamRidgeLight)"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                  />
-
-                  {/* Ambient cylinder shadow boundary */}
-                  <path
-                    d="M 442 278 L 565 65 L 560 85 L 430 300 Z"
-                    fill="#022c22"
-                    opacity="0.85"
-                  />
-                </g>
-
-                {/* GIANT 3D BITCOIN COIN (Matching Reference Image) */}
-                <g className="wbg-floating-group" filter="url(#coinHeavyShadow)">
-                  {/* 3D Extruded Coin Edge (Thickness) */}
-                  <path
-                    d="M 252 232 C 238 185 272 132 328 114 C 384 96 441 120 455 167 L 444 185 C 430 138 373 114 317 132 C 261 150 227 203 241 250 Z"
-                    fill="url(#btcEdge3d)"
-                  />
-                  {/* Lower Coin Edge Rim highlight */}
-                  <ellipse
-                    cx="342"
-                    cy="204"
-                    rx="106"
-                    ry="92"
-                    transform="rotate(-18 342 204)"
-                    fill="#451a03"
-                  />
-
-                  {/* Outer Beveled Metallic Rim */}
-                  <ellipse
-                    cx="348"
-                    cy="194"
-                    rx="106"
-                    ry="92"
-                    transform="rotate(-18 348 194)"
-                    fill="url(#btcGoldCountric)"
-                    stroke="#fef08a"
-                    strokeWidth="2.5"
-                  />
-
-                  {/* Concentric Inner Bevel Ring (Ridge from reference) */}
-                  <ellipse
-                    cx="348"
-                    cy="194"
-                    rx="97"
-                    ry="84"
-                    transform="rotate(-18 348 194)"
-                    fill="none"
-                    stroke="#78350f"
-                    strokeWidth="2"
-                  />
-                  <ellipse
-                    cx="348"
-                    cy="194"
-                    rx="93"
-                    ry="80"
-                    transform="rotate(-18 348 194)"
-                    fill="url(#btcBasinGrad)"
-                    stroke="#ca8a04"
-                    strokeWidth="1.5"
-                  />
-
-                  {/* Specular Glare Arc on Upper Coin Rim */}
-                  <path
-                    d="M 270 155 C 300 120 365 110 415 125"
-                    stroke="#ffffff"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                    opacity="0.8"
-                  />
-
-                  {/* 3D Embossed White Bitcoin Symbol (₿) */}
-                  <g transform="translate(348 194) rotate(-18) translate(-348 -194)">
-                    {/* Dark Depth Shadow under ₿ */}
-                    <path
-                      d="M336 142 V153 H342 V142 H348 V153 H352 C362 153 369 158 369 166 C369 171 366 175 361 178 C368 181 372 187 372 195 C372 206 364 213 352 213 H348 V224 H342 V213 H336 V224 H330 V213 H318 V142 H330 V153 H336 V142 Z M332 163 V177 H350 C356 177 360 174 360 170 C360 166 356 163 350 163 Z M332 187 V203 H352 C358 203 363 199 363 195 C363 191 358 187 352 187 Z"
-                      fill="#451a03"
-                      transform="translate(4 6)"
-                    />
-                    {/* 3D Extruded Wall under White ₿ */}
-                    <path
-                      d="M336 142 V153 H342 V142 H348 V153 H352 C362 153 369 158 369 166 C369 171 366 175 361 178 C368 181 372 187 372 195 C372 206 364 213 352 213 H348 V224 H342 V213 H336 V224 H330 V213 H318 V142 H330 V153 H336 V142 Z M332 163 V177 H350 C356 177 360 174 360 170 C360 166 356 163 350 163 Z M332 187 V203 H352 C358 203 363 199 363 195 C363 191 358 187 352 187 Z"
-                      fill="#d4d4d8"
-                      transform="translate(1.5 2.5)"
-                    />
-                    {/* Front Pure White Embossed ₿ Face */}
-                    <path
-                      d="M336 142 V153 H342 V142 H348 V153 H352 C362 153 369 158 369 166 C369 171 366 175 361 178 C368 181 372 187 372 195 C372 206 364 213 352 213 H348 V224 H342 V213 H336 V224 H330 V213 H318 V142 H330 V153 H336 V142 Z M332 163 V177 H350 C356 177 360 174 360 170 C360 166 356 163 350 163 Z M332 187 V203 H352 C358 203 363 199 363 195 C363 191 358 187 352 187 Z"
-                      fill="#ffffff"
-                      stroke="#f8fafc"
-                      strokeWidth="0.5"
-                    />
-                  </g>
-                </g>
-
-                {/* FOREGROUND OBSIDIAN BLACK ETHEREUM COIN (Matching Reference Image) */}
-                <g className="wbg-eth-group" filter="url(#coinHeavyShadow)">
-                  {/* Heavy Bottom Thickness */}
-                  <ellipse
-                    cx="115"
-                    cy="295"
-                    rx="88"
-                    ry="76"
-                    transform="rotate(-16 115 295)"
-                    fill="#020617"
-                  />
-
-                  {/* Outer Beveled Graphite Rim */}
-                  <ellipse
-                    cx="118"
-                    cy="288"
-                    rx="88"
-                    ry="76"
-                    transform="rotate(-16 118 288)"
-                    fill="url(#ethObsidianRim)"
-                    stroke="#64748b"
-                    strokeWidth="2"
-                  />
-
-                  {/* Concentric Step Ring */}
-                  <ellipse
-                    cx="118"
-                    cy="288"
-                    rx="80"
-                    ry="69"
-                    transform="rotate(-16 118 288)"
-                    fill="none"
-                    stroke="#0f172a"
-                    strokeWidth="2"
-                  />
-
-                  {/* Inner Obsidian Matte Basin */}
-                  <ellipse
-                    cx="118"
-                    cy="288"
-                    rx="76"
-                    ry="65"
-                    transform="rotate(-16 118 288)"
-                    fill="url(#ethObsidianFace)"
-                    stroke="#1e293b"
-                    strokeWidth="1"
-                  />
-
-                  {/* Metallic Platinum Specular Rim Arc */}
-                  <path
-                    d="M 55 260 C 80 230 135 225 175 240"
-                    stroke="#e2e8f0"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    opacity="0.75"
-                  />
-
-                  {/* 3D Faceted Diamond Ethereum Crystal (Ξ) */}
-                  <g transform="translate(118 288) rotate(-16) translate(-118 -288)">
-                    {/* Shadow underneath crystal */}
-                    <path
-                      d="M118 244 L88 288 L118 304 L148 288 Z M118 309 L88 293 L118 332 L148 293 Z"
-                      fill="#020617"
-                      transform="translate(3 5)"
-                      opacity="0.9"
-                    />
-
-                    {/* Top Diamond Facet: Crisp Pure White */}
-                    <polygon points="118,244 88,288 118,272" fill="url(#ethFacetTop)" />
-                    {/* Top Right Facet: Bright Silver */}
-                    <polygon points="118,244 118,272 148,288" fill="url(#ethFacetLeft)" />
-                    {/* Mid Left Facet */}
-                    <polygon points="88,288 118,272 118,304" fill="url(#ethFacetRight)" />
-                    {/* Mid Right Facet */}
-                    <polygon points="118,272 148,288 118,304" fill="url(#ethFacetBottom)" />
-
-                    {/* Bottom Lower Crystal Pyramid */}
-                    <polygon points="118,309 88,293 118,332" fill="url(#ethFacetLeft)" />
-                    <polygon points="118,309 148,293 118,332" fill="url(#ethFacetBottom)" />
-                  </g>
-                </g>
-              </svg>
+                      {/* Tooltip Pill displaying Live Stats */}
+                      <div className={`coin-stats-tooltip ${isHovered ? 'visible' : ''}`}>
+                        <span className="coin-tooltip-name">{coin.name}</span>
+                        <span className="coin-tooltip-price">{coin.price}</span>
+                        <span className="coin-tooltip-change">{coin.change}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* 3 Pillars Below Centerpiece (Matching Reference Orange Boxes, but in Luxury B&W) */}
+            {/* 3 Pillars Below Centerpiece (Green, Orange, Red Buttons/Pills) */}
             <div className="bw-three-pillars">
-              {currentCenterpiece.pillars.map((pillar, idx) => (
-                <div
-                  key={idx}
-                  className={`bw-pillar-card ${selectedPillar === idx ? 'active' : ''}`}
-                  onClick={() => setSelectedPillar(idx)}
-                >
-                  <div className="bw-pillar-title">{pillar.title}</div>
-                  <div className="bw-pillar-val">{pillar.val}</div>
-                  <div className="bw-pillar-sub">{pillar.sub}</div>
-                </div>
-              ))}
+              {currentCenterpiece.pillars.map((pillar, idx) => {
+                const colorTheme = idx === 0 ? 'pillar-green' : idx === 1 ? 'pillar-orange' : 'pillar-red';
+                const buttonText = idx === 0 ? 'Trade Options' : idx === 1 ? 'Trade Futures' : 'Launch Algo';
+                const tagText = idx === 0 ? 'ZERO COMMISSION' : idx === 1 ? 'MAKER REBATE' : 'ZERO SPREAD';
+                const targetTab: NavigationId = idx === 0 ? 'options' : idx === 1 ? 'futures' : 'algo-trading';
+
+                return (
+                  <div
+                    key={idx}
+                    className={`bw-pillar-card ${colorTheme} ${selectedPillar === idx ? 'active' : ''}`}
+                    onClick={() => setSelectedPillar(idx)}
+                  >
+                    <div className="pillar-top-badge-row">
+                      <span className={`pillar-tag-badge badge-${colorTheme}`}>
+                        <span className="pillar-pulse-dot"></span>
+                        {tagText}
+                      </span>
+                    </div>
+
+                    <div className="bw-pillar-title">{pillar.title}</div>
+                    <div className="bw-pillar-val">{pillar.val}</div>
+                    <div className="bw-pillar-sub">{pillar.sub}</div>
+
+                    <button
+                      className={`pillar-card-btn btn-${colorTheme}`}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleNav(targetTab);
+                      }}
+                    >
+                      <span>{buttonText}</span>
+                      <ArrowRight size={12} />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -946,12 +824,40 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           <div className="bw-terminal-card">
             <div className="bw-terminal-header">
               <div className="bw-window-dots">
-                <span className="bw-wdot"></span>
-                <span className="bw-wdot"></span>
-                <span className="bw-wdot"></span>
+                <span className="bw-wdot wdot-red" title="Close Script"></span>
+                <span className="bw-wdot wdot-orange" title="Pause Execution"></span>
+                <span className="bw-wdot wdot-green" title="Run Script"></span>
               </div>
-              <span>hammer_alpha_engine.py</span>
-              <span className="bw-kbd">Python 3.11</span>
+              <div className="bw-term-title-wrap">
+                <span className="bw-terminal-file">hammer_alpha_engine.py</span>
+                <span className="bw-kbd">Python 3.11</span>
+              </div>
+              <div className="bw-card-traffic-actions">
+                <button
+                  className={`traffic-action-btn btn-green-action ${terminalStatus === 'running' ? 'active' : ''}`}
+                  type="button"
+                  onClick={() => setTerminalStatus('running')}
+                  title="Execute High-Frequency Algorithm"
+                >
+                  <Play size={10} /> RUN
+                </button>
+                <button
+                  className={`traffic-action-btn btn-orange-action ${terminalStatus === 'paused' ? 'active' : ''}`}
+                  type="button"
+                  onClick={() => setTerminalStatus('paused')}
+                  title="Pause Order Flow"
+                >
+                  PAUSE
+                </button>
+                <button
+                  className={`traffic-action-btn btn-red-action ${terminalStatus === 'stopped' ? 'active' : ''}`}
+                  type="button"
+                  onClick={() => setTerminalStatus('stopped')}
+                  title="Kill Switch / Emergency Stop"
+                >
+                  RESET
+                </button>
+              </div>
             </div>
             <pre className="bw-code-block">
               <code>
@@ -979,15 +885,17 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
           <div className="bw-terminal-card">
             <div className="bw-terminal-header">
               <div className="bw-window-dots">
-                <span className="bw-wdot"></span>
-                <span className="bw-wdot"></span>
-                <span className="bw-wdot"></span>
+                <span className="bw-wdot wdot-red" title="Disconnect Feed"></span>
+                <span className="bw-wdot wdot-orange" title="Throttle Stream"></span>
+                <span className="bw-wdot wdot-green" title="Full Speed 100Hz"></span>
               </div>
               <span>Live WebSocket Stream • 100Hz</span>
-              <span style={{ color: '#ffffff', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#ffffff' }}></span>
-                ONLINE
-              </span>
+              <div className="bw-card-traffic-actions">
+                <span className="stream-badge-pulse">
+                  <span className="stream-dot-green"></span>
+                  LIVE 100Hz
+                </span>
+              </div>
             </div>
             <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', fontFamily: 'var(--font-mono)', fontSize: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px', borderLeft: '2px solid #ffffff' }}>
@@ -1096,13 +1004,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
         <div className="bw-footer-inner">
           <div className="bw-footer-col">
             <div className="bw-brand-link" style={{ marginBottom: '14px' }}>
-              <div className="bw-logo-icon">
-                <Terminal size={18} strokeWidth={2.5} />
-              </div>
-              <div className="bw-brand-text">
-                <span className="bw-brand-title">Hammer.</span>
-                <span className="bw-brand-tag">QUANT TRADING PLATFORM</span>
-              </div>
+              <img src="/hammer_logo.png" alt="Hammer Logo" className="bw-header-logo-img" />
+              <span className="bw-brand-tag-pill">QUANT TRADING PLATFORM</span>
             </div>
             <p style={{ fontSize: '13px', color: '#71717a', lineHeight: 1.6, maxWidth: '280px' }}>
               Institutional grade algorithmic trading platform for crypto futures, options,
@@ -1204,11 +1107,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
               <X size={20} />
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <div className="bw-logo-icon" style={{ width: '28px', height: '28px' }}>
-                <Terminal size={16} />
-              </div>
-              <span style={{ fontWeight: 800, fontSize: '16px', color: '#ffffff' }}>Hammer Quant</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+              <img src="/hammer_logo.png" alt="Hammer Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />
+              <span className="bw-brand-tag-pill">QUANT TRADING</span>
             </div>
 
             <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#ffffff', marginBottom: '8px' }}>

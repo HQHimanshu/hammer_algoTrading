@@ -42,14 +42,8 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onSelectTab, onOpenCh
       {/* Top Navbar Row */}
       <div className="navbar-top">
         {/* Brand / Logo */}
-        <div className="navbar-brand">
-          <div className="brand-logo">
-            <Terminal size={18} className="brand-icon" />
-          </div>
-          <div className="brand-info">
-            <span className="brand-title">Hammer</span>
-            <span className="brand-badge">ALGO</span>
-          </div>
+        <div className="navbar-brand" style={{ cursor: 'pointer' }} onClick={() => onSelectTab('home')}>
+          <img src="/hammer_logo.png" alt="Hammer Logo" className="app-navbar-logo-img" />
           <div className="engine-status">
             <span className="status-dot"></span>
             <span className="status-text">LIVE</span>
