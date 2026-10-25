@@ -1,0 +1,9 @@
+export { HomePage } from './Home';
+export { MarketsPage } from './Markets';
+export { FuturesPage } from './Futures';
+export { OptionsPage } from './Options';
+export { SpotPage } from './Spot';
+export { AlgoTradingPage } from './AlgoTrading';
+export { PortfolioPage } from './Portfolio';
+export { RiskMonitorPage } from './RiskMonitor';
+export { TradeHistoryPage } from './TradeHistory';
