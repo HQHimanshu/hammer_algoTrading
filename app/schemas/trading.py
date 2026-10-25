@@ -81,6 +81,10 @@ class Ticker(BaseModel):
 # Strategy
 class StrategyEvaluationRequest(BaseModel):
     symbol: str = "BTCUSDT"
+    strategy_id: Optional[str] = Field(
+        default="strategy_1",
+        description="Strategy identifier: 'strategy_1' (Heikin-Ashi Breakout) or 'strategy_ma' (Moving Average RSI)",
+    )
     candles: Optional[List[Candle]] = Field(
         default=None,
         description="Optional list of completed candles. If omitted, fetched live from Delta Testnet.",
@@ -94,6 +98,8 @@ class StrategySignal(BaseModel):
     fast_ma: Optional[float] = None
     slow_ma: Optional[float] = None
     rsi: Optional[float] = None
+    stop_loss: Optional[float] = None
+    take_profit: Optional[float] = None
     reason: str
     timestamp: str
     strategy_name: str = Field(default="Strategy 1 - Golden Cross + RSI Confirmation", description="Identifier of the executing strategy")

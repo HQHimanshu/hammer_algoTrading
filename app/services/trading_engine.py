@@ -19,6 +19,7 @@ from app.services.execution_service import ExecutionService
 from app.services.market_service import MarketService
 from app.services.risk_service import RiskService
 from app.strategies.moving_average import MovingAverageRsiStrategy
+from app.strategies.heikin_ashi import HeikinAshiStrategy
 
 logger = logging.getLogger("algopilot.trading_engine")
 
@@ -40,13 +41,19 @@ class TradingEngine:
         self.execution_service = execution_service
         self.database = database
 
-        # Initialize strategy
+        # Initialize strategies
         self.strategy = MovingAverageRsiStrategy(
             fast_period=settings.STRATEGY_FAST_PERIOD,
             slow_period=settings.STRATEGY_SLOW_PERIOD,
             rsi_period=settings.STRATEGY_RSI_PERIOD,
             rsi_overbought=settings.STRATEGY_RSI_OVERBOUGHT,
             rsi_oversold=settings.STRATEGY_RSI_OVERSOLD,
+        )
+        self.heikin_ashi_strategy = HeikinAshiStrategy(
+            trend_bars=3,
+            expiry_bars=5,
+            stop_pct=0.3,
+            target_pct=1.5,
         )
 
         # Background loop state
@@ -66,16 +73,25 @@ class TradingEngine:
         """Evaluate strategy without placing orders (for validation & API evaluation)."""
         symbol = request.symbol.upper()
         candles = request.candles
+        strat_id = (request.strategy_id or "strategy_1").lower()
 
-        if not candles:
-            # Fetch live candles from Delta Testnet
-            candles = await self.market_service.get_candles(
-                symbol=symbol,
-                resolution="1m",
-                limit=self.strategy.min_required_candles + 10,
-            )
+        if strat_id in ["heikin_ashi", "strategy_heikin_ashi", "ha_breakout", "strategy_1_ha"]:
+            if not candles:
+                candles = await self.market_service.get_candles(
+                    symbol=symbol,
+                    resolution="1m",
+                    limit=self.heikin_ashi_strategy.min_required_candles + 10,
+                )
+            signal = self.heikin_ashi_strategy.evaluate(symbol=symbol, candles=candles)
+        else:
+            if not candles:
+                candles = await self.market_service.get_candles(
+                    symbol=symbol,
+                    resolution="1m",
+                    limit=self.strategy.min_required_candles + 10,
+                )
+            signal = self.strategy.evaluate(symbol=symbol, candles=candles)
 
-        signal = self.strategy.evaluate(symbol=symbol, candles=candles)
         self._last_signal = signal
         return signal
 

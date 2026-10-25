@@ -28,6 +28,36 @@ async def get_strategy_status(request: Request) -> StrategyStatus:
     return await engine.get_strategy_status()
 
 
+@router.post("/strategy/config")
+async def update_strategy_config(config_data: Dict[str, Any], request: Request) -> Dict[str, Any]:
+    """Update strategy parameters in runtime."""
+    engine: TradingEngine = request.app.state.trading_engine
+    settings = request.app.state.settings
+    if "symbol" in config_data:
+        settings.DEFAULT_TRADING_SYMBOL = str(config_data["symbol"]).upper()
+    if "fast_period" in config_data:
+        settings.STRATEGY_FAST_PERIOD = int(config_data["fast_period"])
+    if "slow_period" in config_data:
+        settings.STRATEGY_SLOW_PERIOD = int(config_data["slow_period"])
+    if "rsi_period" in config_data:
+        settings.STRATEGY_RSI_PERIOD = int(config_data["rsi_period"])
+    if "rsi_overbought" in config_data:
+        settings.STRATEGY_RSI_OVERBOUGHT = float(config_data["rsi_overbought"])
+    if "rsi_oversold" in config_data:
+        settings.STRATEGY_RSI_OVERSOLD = float(config_data["rsi_oversold"])
+    return {"status": "updated", "config": await engine.get_strategy_status()}
+
+
+@router.get("/strategy/signals")
+async def get_strategy_signals(
+    request: Request,
+    limit: int = Query(default=50, ge=1, le=100),
+) -> List[Dict[str, Any]]:
+    """Return history of evaluated signals from SQLite."""
+    database: Database = request.app.state.database
+    return await database.get_recent_signals(limit=limit)
+
+
 @router.get("/strategies")
 async def list_strategies(request: Request) -> List[Dict[str, Any]]:
     """Return catalog of available quantitative strategies in Project Hammer."""
@@ -45,7 +75,18 @@ async def list_strategies(request: Request) -> List[Dict[str, Any]]:
             "rsi_overbought": status.rsi_overbought,
             "rsi_oversold": status.rsi_oversold,
             "description": "Dual Moving Average Crossover (SMA) with RSI overbought/oversold confirmation filter.",
-        }
+        },
+        {
+            "id": "strategy_heikin_ashi",
+            "name": "Strategy 1 (Variant) - Heikin-Ashi Pullback Breakout",
+            "status": "active",
+            "symbol": status.symbol,
+            "trend_bars": 3,
+            "expiry_bars": 5,
+            "stop_pct": 0.3,
+            "target_pct": 1.5,
+            "description": "Multi-bar directional trend identification using Heikin-Ashi candles, opposite-color pullback setup arming, and breakout confirmation on real closes.",
+        },
     ]
 
 
@@ -86,6 +127,50 @@ async def emergency_stop(request: Request) -> TradingControlResponse:
     """Activate emergency stop: immediately halt trading loop and reject all new orders."""
     engine: TradingEngine = request.app.state.trading_engine
     return await engine.emergency_stop()
+
+
+@router.post("/trading/enable")
+async def enable_trading(request: Request) -> Dict[str, Any]:
+    """Explicitly enable automated demo trading in runtime."""
+    settings = request.app.state.settings
+    settings.TRADING_ENABLED = True
+    return {
+        "status": "enabled",
+        "trading_enabled": True,
+        "message": "Automated demo trading execution has been explicitly enabled.",
+    }
+
+
+@router.post("/trading/disable")
+async def disable_trading(request: Request) -> Dict[str, Any]:
+    """Disable automated trading execution."""
+    settings = request.app.state.settings
+    settings.TRADING_ENABLED = False
+    engine: TradingEngine = request.app.state.trading_engine
+    if engine.is_running:
+        await engine.stop_loop()
+    return {
+        "status": "disabled",
+        "trading_enabled": False,
+        "message": "Automated trading execution has been disabled.",
+    }
+
+
+@router.get("/trading/history")
+async def get_trading_history(
+    request: Request,
+    limit: int = Query(default=50, ge=1, le=100),
+) -> Dict[str, Any]:
+    """Return consolidated trading history (orders, trades, risk events)."""
+    database: Database = request.app.state.database
+    orders = await database.get_recent_orders(limit=limit)
+    trades = await database.get_recent_trades(limit=limit)
+    return {
+        "orders": orders,
+        "trades": trades,
+        "total_orders": len(orders),
+        "total_trades": len(trades),
+    }
 
 
 @router.get("/trading/status", response_model=TradingStatusResponse)
@@ -167,6 +252,47 @@ async def explain_strategy(
     """Return comprehensive mathematical rules, parameters, indicators, and risk constraints for a strategy."""
     engine: TradingEngine = request.app.state.trading_engine
     status = await engine.get_strategy_status()
+
+    if strategy_id in ["strategy_1", "heikin_ashi", "strategy_heikin_ashi"]:
+        return {
+            "strategy_id": "strategy_1",
+            "name": "Strategy 1 - Heikin-Ashi Pullback Breakout",
+            "version": "1.0.0",
+            "description": "Multi-bar directional trend identification using Heikin-Ashi candles, opposite-color pullback setup arming, and breakout confirmation on real closes.",
+            "parameters": {
+                "symbol": status.symbol,
+                "timeframe": "1m",
+                "trend_bars": 3,
+                "expiry_bars": 5,
+                "stop_pct": 0.3,
+                "target_pct": 1.5,
+                "order_size": getattr(request.app.state.settings, "ORDER_SIZE", 1.0),
+            },
+            "indicators": [
+                {
+                    "name": "Heikin-Ashi Candlesticks",
+                    "period": 3,
+                    "role": "Filters noise: ha_close = (O+H+L+C)/4; ha_open = (prev_ha_open + prev_ha_close)/2.",
+                },
+                {
+                    "name": "Pullback Level Trigger",
+                    "period": 5,
+                    "role": "Arms long setup at previous high when opposite bearish HA appears during bull trend, or short at low.",
+                },
+            ],
+            "entry_rules": {
+                "BUY": "Triggered when 3 consecutive bullish HA bars occur, a bearish HA bar arms the high level, and subsequent real candle closes above that level within 5 bars.",
+                "SELL": "Triggered when 3 consecutive bearish HA bars occur, a bullish HA bar arms the low level, and subsequent real candle closes below that level within 5 bars.",
+                "HOLD": "No setup armed, setup expired after 5 bars, or breakout condition not yet satisfied.",
+            },
+            "risk_controls": [
+                "Stop loss placed at entry * (1 - 0.3%) for long, or entry * (1 + 0.3%) for short",
+                "Take profit placed at entry * (1 + 1.5%) for long, or entry * (1 - 1.5%) for short",
+                "Pre-trade max position size limit",
+                "Trading enabled check",
+                "Daily loss circuit breaker",
+            ],
+        }
 
     return {
         "strategy_id": strategy_id,

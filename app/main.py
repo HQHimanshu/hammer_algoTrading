@@ -27,8 +27,10 @@ from app.services.ai import TradeMindCopilot
 from app.services.event_service import EventService
 from app.services.execution_service import ExecutionService
 from app.services.market_service import MarketService
+from app.services.market_streamer import MarketStreamer
 from app.services.risk_service import RiskService
 from app.services.trading_engine import TradingEngine
+from app.api.websocket import router as websocket_router
 
 
 def configure_logging(level_name: str = "INFO") -> None:
@@ -84,6 +86,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # 3. Initialize Services
     market_service = MarketService(delta_client=delta_client)
+    market_streamer = MarketStreamer(settings=settings, market_service=market_service)
+    await market_streamer.start()
+
     risk_service = RiskService(settings=settings, delta_client=delta_client)
     execution_service = ExecutionService(
         settings=settings,
@@ -112,6 +117,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     app.state.database = database
     app.state.delta_client = delta_client
     app.state.market_service = market_service
+    app.state.market_streamer = market_streamer
     app.state.risk_service = risk_service
     app.state.execution_service = execution_service
     app.state.trading_engine = trading_engine
@@ -128,8 +134,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.info("Stopping active background trading loop...")
         await trading_engine.stop_loop()
 
+    await market_streamer.stop()
     await delta_client.close()
-    logger.info("Delta Exchange client closed. Shutdown complete.")
+    logger.info("Delta Exchange client and market streamer closed. Shutdown complete.")
 
 
 def create_app() -> FastAPI:
@@ -172,7 +179,9 @@ def create_app() -> FastAPI:
     # Mount Routers
     app.include_router(health_router)
     app.include_router(market_router)
+    app.include_router(websocket_router)
     app.include_router(trading_router)
+    app.include_router(trading_router, prefix="/api")  # alias so /api/trading and /api/strategy work
     app.include_router(trades_router)
     app.include_router(risk_router)
     app.include_router(analytics_router)

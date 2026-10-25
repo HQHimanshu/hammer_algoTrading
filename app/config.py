@@ -209,14 +209,14 @@ class Settings(BaseSettings):
     @field_validator("DELTA_BASE_URL")
     @classmethod
     def validate_testnet_url(cls, v: str) -> str:
-        """Enforce that Delta Exchange base URL points to a testnet domain."""
+        """Enforce that Delta Exchange base URL points to a testnet or demo domain."""
         clean_url = v.strip().rstrip("/")
         # Production URLs like https://api.delta.exchange or https://api.india.delta.exchange are forbidden
-        if "testnet" not in clean_url.lower():
+        if "testnet" not in clean_url.lower() and "demo" not in clean_url.lower():
             raise ValueError(
                 f"SAFETY VIOLATION: '{clean_url}' does not appear to be a testnet URL. "
                 "The AlgoPilot trading system only connects to Delta Exchange Testnet "
-                "(e.g. 'https://testnet-api.delta.exchange')."
+                "(e.g. 'https://testnet-api.delta.exchange' or 'https://cdn-ind.testnet.deltaex.org')."
             )
         return clean_url
 
